@@ -1,9 +1,9 @@
-import { useUser } from '@/hooks/useUser'
+import { getUser } from '@/hooks/getUser'
 import React from 'react'
 import { SignOut } from '../_components/signOut';
 
 const Dashboard = async () => {
-    const session = await useUser({ 
+    const session = await getUser({ 
         redirectTo: "/sign-in" 
     });
 
@@ -14,5 +14,6 @@ const Dashboard = async () => {
         </div>
     )
 }
+
 
 export default Dashboard;

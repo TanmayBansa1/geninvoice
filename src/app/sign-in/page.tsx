@@ -1,9 +1,9 @@
 import { LoginForm } from "@/app/_components/login-form"
-import { useUser } from "@/hooks/useUser";
+import { getUser } from "@/hooks/getUser";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-    const user = await useUser({ allowUnauthenticated: true });
+    const user = await getUser({ allowUnauthenticated: true });
     
     if (user) {
         redirect("/dashboard");

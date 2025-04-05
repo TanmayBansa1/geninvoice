@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -11,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import GoogleSignin from "./google-signin"
 import { signIn } from "@/server/auth"
-
+import SubmitButton from "./submitButton"
 export async function LoginForm({
   className,
   ...props
@@ -49,10 +48,8 @@ export async function LoginForm({
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Send Magic Link
-                </Button>
-              </div>
+                <SubmitButton></SubmitButton>
+              </div> 
             </div>
           </form>
           <div className="relative my-4">

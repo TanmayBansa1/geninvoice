@@ -1,7 +1,7 @@
 import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
 
-export async function useUser(options: { 
+export async function getUser(options: { 
     allowUnauthenticated?: boolean, 
     redirectTo?: string 
 } = {}) {
