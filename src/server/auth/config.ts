@@ -1,9 +1,6 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
-
-import { db } from "@/server/db";
-
+import Google from "next-auth/providers/google";
+import Nodemailer from "next-auth/providers/nodemailer"
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -18,21 +15,22 @@ declare module "next-auth" {
       // role: UserRole;
     } & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
 export const authConfig = {
   providers: [
-    DiscordProvider,
+    Google,
+    Nodemailer({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: process.env.EMAIL_SERVER_PORT,
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+      },
+      from: process.env.EMAIL_FROM,
+    }),
     /**
      * ...add more providers here.
      *
@@ -43,7 +41,8 @@ export const authConfig = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
-  adapter: PrismaAdapter(db),
+
+  secret: process.env.AUTH_SECRET,
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
@@ -51,6 +50,9 @@ export const authConfig = {
         ...session.user,
         id: user.id,
       },
-    }),
+    })
+  },
+  pages: {
+    signIn: "/sign-in",
   },
 } satisfies NextAuthConfig;
