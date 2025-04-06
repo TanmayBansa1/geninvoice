@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -297,25 +297,6 @@ export default function CreateInvoice() {
                 )}
               />
             )}
-            <FormField
-              control={form.control}
-              name="amount"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Total Amount</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="Calculated Amount" 
-                      value={quantity * rate}
-                      readOnly
-                      disabled
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
           
           {/* From Details */}
@@ -454,6 +435,26 @@ export default function CreateInvoice() {
                   <FormMessage />
                 </FormItem>
               )}
+
+            />
+            <FormField
+              control={form.control}
+              name="amount"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Total Amount</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="Calculated Amount" 
+                      value={quantity * rate}
+                      readOnly
+                      disabled
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
 
@@ -474,14 +475,12 @@ export default function CreateInvoice() {
 
           <Button 
             type="submit" 
-            className="w-full"
+            className="w-full bg-green-400 text-lg rounded-md hover:bg-green-600 hover:scale-102 transition-all duration-300"
             disabled={createInvoice.isPending}
-          >
-            {createInvoice.isPending ? "Creating Invoice..." : "Create Invoice"}
-          </Button>
 
-          {/* Rest of the form remains the same */}
-          {/* ... (previous implementation) ... */}
+          >
+            {createInvoice.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"   /> : "Create Invoice"}
+          </Button>
         </form>
       </Form>
     </div>
