@@ -21,7 +21,7 @@ const InvoicePage = () => {
             <p className='text-muted-foreground text-sm mt-3'>Manage your invoices right here</p>
           </CardTitle>
           <Button onClick={() => {
-            router.push("/invoices/new");
+            router.push("/invoices/create");
           }} className='bg-green-400 text-xl rounded-md hover:bg-green-600 hover:scale-105 transition-all duration-300' variant="outline">
             <Plus></Plus>   Create Invoice
           </Button>
