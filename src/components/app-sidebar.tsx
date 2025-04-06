@@ -1,11 +1,12 @@
 "use client"
 import * as React from "react"
-import { CreditCard, HomeIcon, Infinity } from "lucide-react"
+import { CreditCard, HomeIcon, Infinity, Info } from "lucide-react"
 import Link from "next/link"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
+import { api } from "@/trpc/react"
 
 // This is sample data.
 const data = {
@@ -49,6 +51,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { data: user, isLoading } = api.user.me.useQuery();
   return (
     <Sidebar variant="floating" {...props}>
       <SidebarHeader>
@@ -56,11 +59,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                <div className="flex items-center justify-center rounded-lg text-green-500">
+                <div className="flex items-center justify-center rounded-lg text-green-400">
                   <Infinity className="size-12" />
                 </div>
                 <div className="flex gap-0.5 leading-none">
-                  <h1 className="flex font-semibold text-4xl ml-2">Gen <span className="text-green-500">Invoice</span></h1>
+                  <h1 className="flex font-semibold text-4xl ml-2">Gen <span className="text-green-400">Invoice</span></h1>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -83,12 +86,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
                         <SidebarMenuSubButton asChild >
-                          <Link className={cn(
-                            pathname === item.url ? "bg-green-200 rounded-lg " : "", 
-                            "text-lg hover:scale-105 hover:bg-green-400"
-                          )} href={item.url}>
-                            <item.icon className="size-6" />
-                            {item.title}
+                          <Link 
+                            href={item.url} 
+                            className={cn(
+                              "group flex items-center w-full p-2 rounded-md transition-all duration-300",
+                              "hover:bg-green-100 hover:text-green-900 hover:scale-105",
+                              pathname === item.url ? "bg-green-200" : ""
+                            )}
+                          >
+                            <item.icon className="size-6 mr-2 group-hover:text-green-900 transition-colors duration-300" />
+                            <span className="group-hover:text-green-900 transition-colors duration-300">
+                              {item.title}
+                            </span>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -99,6 +108,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        {!isLoading && !user?.address ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <p className="font-medium text-xl text-green-800 mb-4">
+                Settings
+              </p>
+            </SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link 
+                  href="/onboard" 
+                  className="py-8 bg-amber-300 w-full rounded-full p-4 mx-auto group 
+                    hover:bg-amber-100 
+                    hover:text-yellow-900 
+                    hover:scale-105 
+                    transition-all 
+                    duration-300"
+                >
+                <Info className="size-6 group-hover:text-yellow-900" />
+                  <p className="font-medium text-yellow-800 group-hover:text-yellow-900 transition-colors duration-300">
+                    Finish Setting up your profile
+                  </p>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+        ) : null}
       </SidebarContent>
     </Sidebar>
   )

@@ -48,7 +48,7 @@ export async function LoginForm({
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <SubmitButton></SubmitButton>
+                <SubmitButton text="Send Magic Link"></SubmitButton>
               </div> 
             </div>
           </form>
