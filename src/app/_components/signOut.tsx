@@ -1,15 +1,8 @@
-import { signOut } from "@/server/auth"
-import { redirect } from "next/navigation"
+import { handleSignout } from "@/lib/actions/auth-actions"
 
 export function SignOut() {
   return (
-    <form
-      action={async () => {
-        "use server"
-        await signOut({ redirectTo: "/sign-in" })
-        redirect("/sign-in")
-      }}
-    >
+    <form action={handleSignout}>
       <button type="submit">Sign Out</button>
     </form>
   )

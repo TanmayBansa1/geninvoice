@@ -1,6 +1,5 @@
 import { getUser } from '@/hooks/getUser'
 import React from 'react'
-import { SignOut } from '../_components/signOut';
 
 const Dashboard = async () => {
     const session = await getUser({ 
@@ -8,11 +7,13 @@ const Dashboard = async () => {
     });
 
     return (
+        <>
         <div>
-            <h1>Dashboard for {session?.name}</h1>
-            <SignOut />
+            hi
         </div>
-    )
+        </>
+      )
+    
 }
 
 
