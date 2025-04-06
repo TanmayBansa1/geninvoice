@@ -1,6 +1,6 @@
 import React from 'react'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { MoreHorizontalIcon } from 'lucide-react'
+import { CheckCircle2, Download, MailCheckIcon, MoreHorizontalIcon, Pencil, Trash } from 'lucide-react'
 import Link from 'next/link'
 
 const InvoiceActions = () => {
@@ -12,11 +12,32 @@ const InvoiceActions = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem className='text-right'>
-                    <Link href={"/edit"}>
-                    Edit Invoice
+                <DropdownMenuItem asChild>
+                    <Link href={"/edit"} className='p-3'>
+                      <Pencil className="size-4" /> Edit Invoice
                     </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={"/edit"} className='p-3'>
+                      <Trash className="size-4" /> Delete Invoice
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={"/edit"} className='p-3'>
+                      <Download className="size-4" /> Download
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={"/edit"} className='p-3'>
+                      <MailCheckIcon className="size-4" /> Send Reminder
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href={"/edit"} className='p-3'>
+                      <CheckCircle2 className="size-4" /> Paid?
+                    </Link>
+                </DropdownMenuItem>
+                
             </DropdownMenuContent>
         </DropdownMenu>
     </div>
