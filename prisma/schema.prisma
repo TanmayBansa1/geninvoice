@@ -14,18 +14,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -63,7 +51,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+    invoices      Invoice[]
 }
 
 model VerificationToken {
@@ -72,4 +60,42 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Invoice{
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    invoiceName String
+    sno Int
+    status InvoiceStatus
+    currency String
+    dueDate Int?
+    date DateTime
+
+    fromName String
+    fromEmail String
+    fromAddress String
+
+    toName String
+    toEmail String
+    toAddress String
+
+    description String
+    quantity Int
+    rate Int
+    amount Int
+
+    note String?
+
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+
+
+}
+
+enum InvoiceStatus{
+    PAID
+    PENDING
 }
