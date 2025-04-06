@@ -63,7 +63,7 @@ const DashboardLayout = ({ children }: Props) => {
                 <LayoutDashboardIcon className="size-6" /> Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem className="p-4"  onClick={() => {
-                router.push("/dashboard/invoice");
+                router.push("/invoices");
               }}>
                 <CreditCard className="size-6" /> Invoices
               </DropdownMenuItem>

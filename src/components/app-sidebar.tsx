@@ -39,7 +39,7 @@ const data = {
       items: [
         {
           title: "Invoices",
-          url: "/dashboard/invoice",
+          url: "/invoices",
           icon: CreditCard
         }
 
