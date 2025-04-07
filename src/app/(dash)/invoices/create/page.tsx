@@ -30,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/format";
 
 // Currencies array
 const CURRENCIES = ["USD", "INR", "EUR"] as const;
@@ -91,7 +92,8 @@ export default function CreateInvoice() {
   const quantity = form.watch("quantity");
   const rate = form.watch("rate");
   const status = form.watch("status");
-
+  const currency = form.watch("currency");
+  console.log(formatCurrency({ amount: quantity * rate, currency }))
   // Calculate amount automatically
   useEffect(() => {
     form.setValue("amount", quantity * rate);
@@ -100,9 +102,10 @@ export default function CreateInvoice() {
   function onSubmit(values: z.infer<typeof invoiceSchema>) {
     const submissionData = {
       ...values,
+      // Ensure amount is a numeric value
       amount: quantity * rate,
       // Only include dueDate if status is PENDING
-      dueDate: status === "PENDING" ? values.dueDate : undefined,
+      dueDate: status === "PENDING" ? values.dueDate : 0,
     };
 
     createInvoice.mutate(
@@ -445,9 +448,9 @@ export default function CreateInvoice() {
                   <FormLabel>Total Amount</FormLabel>
                   <FormControl>
                     <Input 
-                      type="number" 
+                      type="text" 
                       placeholder="Calculated Amount" 
-                      value={quantity * rate}
+                      value={formatCurrency({ amount: quantity * rate, currency}).formatted}
                       readOnly
                       disabled
                     />

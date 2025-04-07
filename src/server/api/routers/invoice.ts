@@ -56,4 +56,23 @@ export const invoiceRouter = createTRPCRouter({
       
       return invoice;
     }),
+    getIvoices: protectedProcedure.query(async ({ ctx }) => {
+      const invoices = await ctx.db.invoice.findMany({
+        where: {
+          user: {
+            id: ctx.session.user.id,
+          },
+        },
+        select: {
+          invoiceName: true,
+          toName: true,
+          amount: true,
+          status: true,
+          date: true,
+          currency: true
+        }
+      });
+      
+      return invoices;
+    })
 });

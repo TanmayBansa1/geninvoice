@@ -1,8 +1,11 @@
 import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 import InvoiceActions from './invoice-actions'
+import { api } from '@/trpc/react'
+import { formatCurrency, formatDate } from '@/lib/format'
 
 const InvoiceList = () => {
+  const {data: invoices} = api.invoice.getIvoices.useQuery();
   return (
     <Table>
         <TableHeader>
@@ -16,16 +19,20 @@ const InvoiceList = () => {
             </TableRow>
         </TableHeader>
         <TableBody>
-            <TableRow>
-                <TableCell>#1</TableCell>
-                <TableCell>Alex Rodgers</TableCell>
-                <TableCell>3500</TableCell>
-                <TableCell>Due</TableCell>
-                <TableCell>12.01.2025</TableCell>
-                <TableCell className="text-right">
-                    <InvoiceActions></InvoiceActions>
-                </TableCell>
-            </TableRow>
+            {
+                invoices?.map((invoice) => (
+                    <TableRow key={invoice.invoiceName}>
+                        <TableCell>{invoice.invoiceName}</TableCell>
+                        <TableCell>{invoice.toName}</TableCell>
+                        <TableCell>{formatCurrency({ amount: invoice.amount, currency: invoice.currency }).formatted}</TableCell>
+                        <TableCell>{invoice.status}</TableCell>
+                        <TableCell>{formatDate(invoice.date)}</TableCell>
+                        <TableCell className="text-right">
+                            <InvoiceActions></InvoiceActions>
+                        </TableCell>
+                    </TableRow>
+                ))
+            }
         </TableBody>
     </Table>
   )
