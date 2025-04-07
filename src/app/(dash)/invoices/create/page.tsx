@@ -253,7 +253,7 @@ export default function CreateInvoice() {
                           )}
                         >
                           {field.value ? (
-                            format(field.value as Date, "PPP")
+                            format(field.value, "PPP")
                           ) : (
                             <span>Pick a date</span>
                           )}
