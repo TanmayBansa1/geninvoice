@@ -64,12 +64,16 @@ export const invoiceRouter = createTRPCRouter({
           },
         },
         select: {
+          id: true,
           invoiceName: true,
           toName: true,
           amount: true,
           status: true,
           date: true,
           currency: true
+        },
+        orderBy: {
+          createdAt: "desc"
         }
       });
       

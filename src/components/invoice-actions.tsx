@@ -3,11 +3,11 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel,
 import { CheckCircle2, Download, MailCheckIcon, MoreHorizontalIcon, Pencil, Trash } from 'lucide-react'
 import Link from 'next/link'
 
-const InvoiceActions = () => {
+const InvoiceActions = ({isPaid}: {isPaid: boolean}) => {
   return (
     <div>
-        <DropdownMenu>
-            <DropdownMenuTrigger className='text-right hover:cursor-pointer'>
+        <DropdownMenu >
+            <DropdownMenuTrigger className='text-right hover:cursor-pointer outline-none focus:ring-0 focus:outline-none'>
                 <MoreHorizontalIcon className='size-6 text-right'></MoreHorizontalIcon>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
@@ -32,11 +32,11 @@ const InvoiceActions = () => {
                       <MailCheckIcon className="size-4" /> Send Reminder
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                {!isPaid && <DropdownMenuItem asChild>
                     <Link href={"/edit"} className='p-3'>
                       <CheckCircle2 className="size-4" /> Paid?
                     </Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem>}
                 
             </DropdownMenuContent>
         </DropdownMenu>
