@@ -80,7 +80,7 @@ export const invoiceRouter = createTRPCRouter({
       
       return invoice;
     }),
-    getIvoices: protectedProcedure.query(async ({ ctx }) => {
+    getInvoices: protectedProcedure.query(async ({ ctx }) => {
       const invoices = await ctx.db.invoice.findMany({
         where: {
           user: {
@@ -102,5 +102,33 @@ export const invoiceRouter = createTRPCRouter({
       });
       
       return invoices;
+    }),
+    getInvoicebyId: protectedProcedure.input(z.object({invoiceId: z.string()})).query(async ({ ctx, input }) => {
+      const invoice = await ctx.db.invoice.findUnique({
+        where: {
+          id: input.invoiceId,
+        },
+        select: {
+          sno: true,
+          invoiceName: true,
+          status: true,
+          currency: true,
+          dueDate: true,
+          date: true,
+          fromName: true,
+          fromEmail: true,
+          fromAddress: true,
+          toName: true,
+          toEmail: true,
+          toAddress: true,
+          description: true,
+          quantity: true,
+          rate: true,
+          amount: true,
+          note: true
+        }
+      });
+      
+      return invoice;
     })
 });
