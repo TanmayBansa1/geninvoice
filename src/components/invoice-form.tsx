@@ -36,7 +36,7 @@ import { formatCurrency } from "@/lib/format";
 const CURRENCIES = ["USD", "INR", "EUR"] as const;
 
 // Zod schema matching the invoice router
-const invoiceSchema = z.object({
+export const invoiceSchema = z.object({
   invoiceName: z.string().min(1, "Invoice name is required"),
   sno: z.number().min(1, "Serial number is required"),
   status: z.enum(["PAID", "PENDING"], { 
