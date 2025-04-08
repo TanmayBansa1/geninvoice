@@ -72,7 +72,8 @@ export const invoiceRouter = createTRPCRouter({
           "toEmail": input.toEmail,
           "fromAddress": input.fromAddress,
           "fromEmail": input.fromEmail,
-          "description": input.description
+          "description": input.description,
+        "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
         }
       }).then(console.log, console.error);
         
