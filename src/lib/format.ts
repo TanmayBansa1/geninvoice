@@ -31,3 +31,4 @@ export function formatDate(date: Date){
         day: '2-digit'
     }).format(date);
 }
+

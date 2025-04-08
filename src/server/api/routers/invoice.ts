@@ -4,6 +4,8 @@ import {
   protectedProcedure,
 } from "@/server/api/trpc";
 import { type Invoice } from "@prisma/client";
+import { mailtrap, sender } from "@/lib/mailtrap";
+import { formatDate } from "@/lib/format";
 
 export const invoiceRouter = createTRPCRouter({
   createInvoice: protectedProcedure
@@ -53,6 +55,27 @@ export const invoiceRouter = createTRPCRouter({
           },
         },
       });
+
+      await mailtrap.send({
+        from: sender,
+        to: [{email: input.toEmail, name: input.toName}],
+        template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
+        template_variables: {
+          "toName": input.toName,
+          "amount": input.amount,
+          "fromName": input.fromName,
+          "sno": input.sno,
+          "invoiceDate": formatDate(input.date),
+          "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
+          "status": input.status,
+          "toAddress": input.toAddress,
+          "toEmail": input.toEmail,
+          "fromAddress": input.fromAddress,
+          "fromEmail": input.fromEmail,
+          "description": input.description
+        }
+      }).then(console.log, console.error);
+        
       
       return invoice;
     }),
