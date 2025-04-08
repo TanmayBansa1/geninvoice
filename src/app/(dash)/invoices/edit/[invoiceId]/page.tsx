@@ -1,11 +1,13 @@
+'use client'
 import InvoiceForm, { invoiceSchema } from "@/components/invoice-form";
 import { api } from "@/trpc/react";
+import { useParams } from "next/navigation";
 import type { z } from "zod";
 
-type params = Promise<{invoiceId: string}>
 
-export default async function EditInvoice({params}: {params: params}) {
-    const {invoiceId} = await params;
+export default function EditInvoice() {
+    const params = useParams();
+    const invoiceId = params.invoiceId as string;
     const {data: invoice} = api.invoice.getInvoicebyId.useQuery({invoiceId});
-  return <InvoiceForm bill={invoice as z.infer<typeof invoiceSchema>} />;
+  return <InvoiceForm bill={invoice as z.infer<typeof invoiceSchema>} invoiceId={invoiceId} />;
 }

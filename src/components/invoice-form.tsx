@@ -63,14 +63,15 @@ export const invoiceSchema = z.object({
 });
 
 
-const InvoiceForm = ( {bill}: {bill?: z.infer<typeof invoiceSchema>}) => {
+const InvoiceForm = ( {bill, invoiceId}: {bill?: z.infer<typeof invoiceSchema>, invoiceId?: string}) => {
 const router = useRouter();
-  const createInvoice = api.invoice.createInvoice.useMutation();
 
+
+  const createInvoice = api.invoice.createInvoice.useMutation();
   const form = useForm<z.infer<typeof invoiceSchema>>({
-    resolver: zodResolver(invoiceSchema),
-    defaultValues: {
-      invoiceName: "",
+      resolver: zodResolver(invoiceSchema),
+      defaultValues:bill ??  {
+          invoiceName: "",
       sno: 1,
       status: "PENDING",
       currency: "USD",
@@ -87,19 +88,33 @@ const router = useRouter();
       rate: 0,
       note: "",
     },
-  });
+    values: bill
+});
 
-  // Watch quantity and rate to calculate amount
-  const quantity = form.watch("quantity");
-  const rate = form.watch("rate");
-  const status = form.watch("status");
-  const currency = form.watch("currency");
-  console.log(formatCurrency({ amount: quantity * rate, currency }))
-  // Calculate amount automatically
-  useEffect(() => {
+// Watch quantity and rate to calculate amount
+const quantity = form.watch("quantity");
+const rate = form.watch("rate");
+const status = form.watch("status");
+const currency = form.watch("currency");
+// Calculate amount automatically
+useEffect(() => {
     form.setValue("amount", quantity * rate);
   }, [quantity, rate, form.setValue, form]);
-
+  
+  
+  // If this is an edit page and bill is not loaded yet, show loading
+  if (invoiceId && !bill) {
+    return (
+      <div className="flex justify-center items-center min-h-[500px]">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+          <p className="mt-4 text-xl text-muted-foreground">
+            Loading Invoice Details...
+          </p>
+        </div>
+      </div>
+    );
+  }
   function onSubmit(values: z.infer<typeof invoiceSchema>) {
     const submissionData = {
       ...values,
@@ -107,6 +122,7 @@ const router = useRouter();
       amount: quantity * rate,
       // Only include dueDate if status is PENDING
       dueDate: status === "PENDING" ? values.dueDate : 0,
+      invoiceId: invoiceId? invoiceId : undefined,
     };
 
     createInvoice.mutate(
@@ -128,6 +144,7 @@ const router = useRouter();
         rate: number;
         amount: number;
         note?: string;
+        invoiceId?: string;
       },
       {
         onSuccess: () => {
@@ -144,6 +161,7 @@ const router = useRouter();
   }
 
   return (
+
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-primary">Create New Invoice</h1>
       <Form {...form}>
@@ -158,7 +176,6 @@ const router = useRouter();
                   <FormLabel>Invoice Name</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.invoiceName}
                       placeholder="Enter invoice name" 
                       {...field} 
                     />
@@ -175,7 +192,6 @@ const router = useRouter();
                   <FormLabel>Serial Number</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.sno}
                       type="number" 
                       placeholder="Enter serial number" 
                       {...field} 
@@ -296,7 +312,6 @@ const router = useRouter();
                     <FormControl>
                       <Input 
                         type="number" 
-                        defaultValue={bill?.dueDate}
                         placeholder="Enter due date in days" 
                         {...field} 
                         onChange={(e) => field.onChange(Number(e.target.value)) as unknown as number}
@@ -319,7 +334,6 @@ const router = useRouter();
                   <FormLabel>From Name</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.fromName}
                       placeholder="Enter sender name" 
                       {...field} 
                     />
@@ -336,7 +350,6 @@ const router = useRouter();
                   <FormLabel>From Email</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.fromEmail}
                       placeholder="Enter sender email" 
                       {...field} 
                     />
@@ -353,7 +366,6 @@ const router = useRouter();
                   <FormLabel>From Address</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.fromAddress}
                       placeholder="Enter sender address" 
                       {...field} 
                     />
@@ -374,7 +386,6 @@ const router = useRouter();
                   <FormLabel>To Name</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.toName}
                       placeholder="Enter recipient name" 
                       {...field} 
                     />
@@ -391,7 +402,6 @@ const router = useRouter();
                   <FormLabel>To Email</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.toEmail}
                       placeholder="Enter recipient email" 
                       {...field} 
                     />
@@ -408,7 +418,6 @@ const router = useRouter();
                   <FormLabel>To Address</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.toAddress}
                       placeholder="Enter recipient address" 
                       {...field} 
                     />
@@ -429,7 +438,6 @@ const router = useRouter();
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.description}
                       placeholder="Enter item description" 
                       {...field} 
                     />
@@ -446,7 +454,6 @@ const router = useRouter();
                   <FormLabel>Quantity</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.quantity}
                       type="number" 
                       placeholder="Enter quantity" 
                       {...field} 
@@ -465,7 +472,6 @@ const router = useRouter();
                   <FormLabel>Rate</FormLabel>
                   <FormControl>
                     <Input 
-                      defaultValue={bill?.rate}
                       type="number" 
                       placeholder="Enter rate" 
                       {...field} 
@@ -507,7 +513,6 @@ const router = useRouter();
                 <FormLabel>Additional Notes</FormLabel>
                 <FormControl>
                   <Input 
-                    defaultValue={bill?.note}
                     placeholder="Enter any additional notes" 
                     {...field} 
                   />

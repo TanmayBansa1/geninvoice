@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 import InvoiceActions from './invoice-actions'
@@ -5,9 +6,10 @@ import { api } from '@/trpc/react'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { Badge } from './ui/badge'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 const InvoiceList = () => {
-  const {data: invoices} = api.invoice.getIvoices.useQuery();
+  const {data: invoices} = api.invoice.getInvoices.useQuery();
   return (
     <Table>
         <TableHeader>
@@ -24,7 +26,12 @@ const InvoiceList = () => {
             {
                 invoices?.map((invoice) => (
                     <TableRow key={invoice.id}>
-                        <TableCell>{invoice.invoiceName}</TableCell>
+                        <TableCell className='cursor-pointer' >
+                            <Link target='_blank' href={`/api/invoice/${invoice.id}`}>
+                                {invoice.invoiceName}
+                            </Link>
+                            
+                        </TableCell>
                         <TableCell>{invoice.toName}</TableCell>
                         <TableCell>{formatCurrency({ amount: invoice.amount, currency: invoice.currency }).formatted}</TableCell>
                         <TableCell>
@@ -37,7 +44,7 @@ const InvoiceList = () => {
                         </TableCell>
                         <TableCell>{formatDate(invoice.date)}</TableCell>
                         <TableCell className="text-right">
-                            <InvoiceActions isPaid={invoice.status === "PAID"}></InvoiceActions>
+                            <InvoiceActions invoiceId={invoice.id} isPaid={invoice.status === "PAID"}></InvoiceActions>
                         </TableCell>
                     </TableRow>
                 ))

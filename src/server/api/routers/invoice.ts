@@ -27,58 +27,110 @@ export const invoiceRouter = createTRPCRouter({
       rate: z.number(),
       amount: z.number(),
       note: z.string().optional(),
+      invoiceId: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }): Promise<Invoice> => {
-      const invoice = await ctx.db.invoice.create({
-        data: {
-          invoiceName: input.invoiceName,
-          sno: input.sno,
-          status: input.status,
-          currency: input.currency,
-          dueDate: input.dueDate,
-          date: input.date,
-          fromName: input.fromName,
-          fromEmail: input.fromEmail,
-          fromAddress: input.fromAddress,
-          toName: input.toName,
-          toEmail: input.toEmail,
-          toAddress: input.toAddress,
-          description: input.description,
-          quantity: input.quantity,
-          rate: input.rate,
-          amount: input.amount,
-          note: input.note,
-          user: {
-            connect: {
-              id: ctx.session.user.id,
+
+      if(input.invoiceId){
+        const invoice = await ctx.db.invoice.update({
+          where: {
+            id: input.invoiceId,
+          },
+          data: {
+            invoiceName: input.invoiceName,
+            sno: input.sno,
+            status: input.status,
+            currency: input.currency,
+            dueDate: input.dueDate,
+            date: input.date,
+            fromName: input.fromName,
+            fromEmail: input.fromEmail,
+            fromAddress: input.fromAddress,
+            toName: input.toName,
+            toEmail: input.toEmail,
+            toAddress: input.toAddress,
+            description: input.description,
+            quantity: input.quantity,
+            rate: input.rate,
+            amount: input.amount,
+            note: input.note,
+          },
+        });
+        await mailtrap.send({
+          from: sender,
+          to: [{email: input.toEmail, name: input.toName}],
+          template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
+          template_variables: {
+            "toName": input.toName,
+            "amount": input.amount,
+            "fromName": input.fromName,
+            "sno": input.sno,
+            "invoiceDate": formatDate(input.date),
+            "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
+            "status": input.status,
+            "toAddress": input.toAddress,
+            "toEmail": input.toEmail,
+            "fromAddress": input.fromAddress,
+            "fromEmail": input.fromEmail,
+            "description": input.description,
+            "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
+          }
+        }).then(console.log, console.error);
+        return invoice;
+      }else{
+
+        
+        const invoice = await ctx.db.invoice.create({
+          data: {
+            invoiceName: input.invoiceName,
+            sno: input.sno,
+            status: input.status,
+            currency: input.currency,
+            dueDate: input.dueDate,
+            date: input.date,
+            fromName: input.fromName,
+            fromEmail: input.fromEmail,
+            fromAddress: input.fromAddress,
+            toName: input.toName,
+            toEmail: input.toEmail,
+            toAddress: input.toAddress,
+            description: input.description,
+            quantity: input.quantity,
+            rate: input.rate,
+            amount: input.amount,
+            note: input.note,
+            user: {
+              connect: {
+                id: ctx.session.user.id,
+              },
             },
           },
-        },
-      });
-
-      await mailtrap.send({
-        from: sender,
-        to: [{email: input.toEmail, name: input.toName}],
-        template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
-        template_variables: {
-          "toName": input.toName,
-          "amount": input.amount,
-          "fromName": input.fromName,
-          "sno": input.sno,
-          "invoiceDate": formatDate(input.date),
-          "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
-          "status": input.status,
-          "toAddress": input.toAddress,
-          "toEmail": input.toEmail,
-          "fromAddress": input.fromAddress,
-          "fromEmail": input.fromEmail,
-          "description": input.description,
-        "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
-        }
-      }).then(console.log, console.error);
+        });
         
-      
-      return invoice;
+        await mailtrap.send({
+          from: sender,
+          to: [{email: input.toEmail, name: input.toName}],
+          template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
+          template_variables: {
+            "toName": input.toName,
+            "amount": input.amount,
+            "fromName": input.fromName,
+            "sno": input.sno,
+            "invoiceDate": formatDate(input.date),
+            "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
+            "status": input.status,
+            "toAddress": input.toAddress,
+            "toEmail": input.toEmail,
+            "fromAddress": input.fromAddress,
+            "fromEmail": input.fromEmail,
+            "description": input.description,
+            "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
+          }
+        }).then(console.log, console.error);
+        
+        
+        return invoice;
+      }
     }),
     getInvoices: protectedProcedure.query(async ({ ctx }) => {
       const invoices = await ctx.db.invoice.findMany({

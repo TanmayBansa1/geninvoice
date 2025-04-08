@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel,
 import { CheckCircle2, Download, MailCheckIcon, MoreHorizontalIcon, Pencil, Trash } from 'lucide-react'
 import Link from 'next/link'
 
-const InvoiceActions = ({isPaid}: {isPaid: boolean}) => {
+const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string}) => {
   return (
     <div>
         <DropdownMenu >
@@ -13,7 +13,7 @@ const InvoiceActions = ({isPaid}: {isPaid: boolean}) => {
             <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem asChild>
-                    <Link href={"/edit"} className='p-3'>
+                    <Link target='_blank' href={`/invoices/edit/${invoiceId}`} className='p-3'>
                       <Pencil className="size-4" /> Edit Invoice
                     </Link>
                 </DropdownMenuItem>
@@ -23,7 +23,7 @@ const InvoiceActions = ({isPaid}: {isPaid: boolean}) => {
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href={"/edit"} className='p-3'>
+                    <Link target='_blank' href={`/api/invoice/${invoiceId}`} className='p-3'>
                       <Download className="size-4" /> Download
                     </Link>
                 </DropdownMenuItem>

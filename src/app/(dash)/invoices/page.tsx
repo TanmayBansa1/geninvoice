@@ -22,7 +22,7 @@ const InvoicePage = () => {
           </CardTitle>
           <Button onClick={() => {
             router.push("/invoices/create");
-          }} className='bg-green-400 text-xl rounded-md hover:bg-green-600 hover:scale-105 transition-all duration-300' variant="outline">
+          }} className=' cursor-pointer bg-green-400 text-xl rounded-md hover:bg-green-600 hover:scale-105 transition-all duration-300' variant="outline">
             <Plus></Plus>   Create Invoice
           </Button>
           </div>
