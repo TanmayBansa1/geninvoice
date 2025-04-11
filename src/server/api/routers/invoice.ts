@@ -250,4 +250,29 @@ export const invoiceRouter = createTRPCRouter({
         });
 
       }),
+      markAsPaid: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
+        const user = await ctx.db.user.findUnique({
+          where: {
+            clerkId: ctx.userId,
+          },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
+        }
+
+        await ctx.db.invoice.update({
+          where: {
+            id: input.invoiceId,
+            userId: user.id,
+          },
+          data: {
+            status: "PAID",
+          },
+        });
+        
+      }),
 });
