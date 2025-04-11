@@ -227,5 +227,27 @@ export const invoiceRouter = createTRPCRouter({
         }
 
         return invoice;
-      })
+      }),
+      deleteInvoice: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
+        const user = await ctx.db.user.findUnique({
+          where: {
+            clerkId: ctx.userId,
+          },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
+        }
+
+        await ctx.db.invoice.delete({
+          where: {
+            id: input.invoiceId,
+            userId: user.id,
+          },
+        });
+
+      }),
 });

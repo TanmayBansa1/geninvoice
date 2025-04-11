@@ -2,8 +2,12 @@ import React from 'react'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { CheckCircle2, Download, MailCheckIcon, MoreHorizontalIcon, Pencil, Trash } from 'lucide-react'
 import Link from 'next/link'
-
+import { api } from '@/trpc/react'
+import { Button } from './ui/button'
+import { useRouter } from 'next/navigation';
 const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string}) => {
+  const deleteInvoice = api.invoice.deleteInvoice.useMutation();
+  const router = useRouter();
   return (
     <div>
         <DropdownMenu >
@@ -12,30 +16,30 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem asChild>
-                    <Link target='_blank' href={`/invoices/edit/${invoiceId}`} className='p-3'>
+                <DropdownMenuItem asChild onClick={() => router.push(`/invoices/edit/${invoiceId}`)}>
+                    <Button  className='p-3'>
                       <Pencil className="size-4" /> Edit Invoice
-                    </Link>
+                    </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link href={"/edit"} className='p-3'>
+                <DropdownMenuItem asChild onClick={() => deleteInvoice.mutate({invoiceId})}>
+                    <Button variant={'link'} className='p-3'>
                       <Trash className="size-4" /> Delete Invoice
-                    </Link>
+                    </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link target='_blank' href={`/api/invoice/${invoiceId}`} className='p-3'>
+                    <Button variant={'link'} className='p-3' onClick={() => window.open(`/api/invoice/${invoiceId}`, '_blank')}>
                       <Download className="size-4" /> Download
-                    </Link>
+                    </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href={"/edit"} className='p-3'>
+                    <Button variant={'link'} className='p-3' onClick={() => window.open(`/edit`, '_blank')}>
                       <MailCheckIcon className="size-4" /> Send Reminder
-                    </Link>
+                    </Button>
                 </DropdownMenuItem>
                 {!isPaid && <DropdownMenuItem asChild>
-                    <Link href={"/edit"} className='p-3'>
+                    <Button variant={'link'} className='p-3' onClick={() => window.open(`/edit`, '_blank')}>
                       <CheckCircle2 className="size-4" /> Paid?
-                    </Link>
+                    </Button>
                 </DropdownMenuItem>}
                 
             </DropdownMenuContent>

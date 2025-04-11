@@ -67,7 +67,17 @@ const InvoiceForm = ( {bill, invoiceId}: {bill?: z.infer<typeof invoiceSchema>, 
 const router = useRouter();
 
 
-  const createInvoice = api.invoice.createInvoice.useMutation();
+  const createInvoice = api.invoice.createInvoice.useMutation({
+    onSuccess: () => {
+      toast.success(invoiceId ? "Invoice updated successfully" : "Invoice created successfully");
+      router.push("/invoices");
+    },
+    onError: (error) => {
+      toast.error(invoiceId ? "Failed to update invoice" : "Failed to create invoice", {
+        description: error.message,
+      });
+    },
+  });
   const form = useForm<z.infer<typeof invoiceSchema>>({
       resolver: zodResolver(invoiceSchema),
       defaultValues:bill ??  {
@@ -524,7 +534,7 @@ useEffect(() => {
 
           <Button 
             type="submit" 
-            className="w-full bg-green-400 text-lg rounded-md hover:bg-green-600 hover:scale-102 transition-all duration-300"
+            className=" cursor-pointer w-full bg-green-400 text-lg rounded-md hover:bg-green-600 hover:scale-102 transition-all duration-300"
             disabled={createInvoice.isPending}
 
           >
