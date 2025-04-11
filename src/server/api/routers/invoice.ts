@@ -6,6 +6,7 @@ import {
 import { type Invoice } from "@prisma/client";
 import { mailtrap, sender } from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { TRPCError } from "@trpc/server";
 
 export const invoiceRouter = createTRPCRouter({
   createInvoice: protectedProcedure
@@ -30,6 +31,19 @@ export const invoiceRouter = createTRPCRouter({
       invoiceId: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }): Promise<Invoice> => {
+      // First get the user's database ID
+      const user = await ctx.db.user.findUnique({
+        where: {
+          clerkId: ctx.userId,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
 
       if(input.invoiceId){
         const invoice = await ctx.db.invoice.update({
@@ -56,6 +70,7 @@ export const invoiceRouter = createTRPCRouter({
             note: input.note,
           },
         });
+
         await mailtrap.send({
           from: sender,
           to: [{email: input.toEmail, name: input.toName}],
@@ -76,10 +91,9 @@ export const invoiceRouter = createTRPCRouter({
             "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
           }
         }).then(console.log, console.error);
-        return invoice;
-      }else{
-
         
+        return invoice;
+      } else {
         const invoice = await ctx.db.invoice.create({
           data: {
             invoiceName: input.invoiceName,
@@ -99,11 +113,7 @@ export const invoiceRouter = createTRPCRouter({
             rate: input.rate,
             amount: input.amount,
             note: input.note,
-            user: {
-              connect: {
-                id: ctx.session.user.id,
-              },
-            },
+            userId: user.id, // Use the database ID
           },
         });
         
@@ -128,16 +138,27 @@ export const invoiceRouter = createTRPCRouter({
           }
         }).then(console.log, console.error);
         
-        
         return invoice;
       }
     }),
+    
     getInvoices: protectedProcedure.query(async ({ ctx }) => {
+      const user = await ctx.db.user.findUnique({
+        where: {
+          clerkId: ctx.userId,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
       const invoices = await ctx.db.invoice.findMany({
         where: {
-          user: {
-            id: ctx.session.user.id,
-          },
+          userId: user.id,
         },
         select: {
           id: true,
@@ -155,32 +176,56 @@ export const invoiceRouter = createTRPCRouter({
       
       return invoices;
     }),
-    getInvoicebyId: protectedProcedure.input(z.object({invoiceId: z.string()})).query(async ({ ctx, input }) => {
-      const invoice = await ctx.db.invoice.findUnique({
-        where: {
-          id: input.invoiceId,
-        },
-        select: {
-          sno: true,
-          invoiceName: true,
-          status: true,
-          currency: true,
-          dueDate: true,
-          date: true,
-          fromName: true,
-          fromEmail: true,
-          fromAddress: true,
-          toName: true,
-          toEmail: true,
-          toAddress: true,
-          description: true,
-          quantity: true,
-          rate: true,
-          amount: true,
-          note: true
+    
+    getInvoicebyId: protectedProcedure
+      .input(z.object({invoiceId: z.string()}))
+      .query(async ({ ctx, input }) => {
+        const user = await ctx.db.user.findUnique({
+          where: {
+            clerkId: ctx.userId,
+          },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
         }
-      });
-      
-      return invoice;
-    })
+
+        const invoice = await ctx.db.invoice.findFirst({
+          where: {
+            id: input.invoiceId,
+            userId: user.id, // Ensure the invoice belongs to the user
+          },
+          select: {
+            sno: true,
+            invoiceName: true,
+            status: true,
+            currency: true,
+            dueDate: true,
+            date: true,
+            fromName: true,
+            fromEmail: true,
+            fromAddress: true,
+            toName: true,
+            toEmail: true,
+            toAddress: true,
+            description: true,
+            quantity: true,
+            rate: true,
+            amount: true,
+            note: true
+          }
+        });
+        
+        if (!invoice) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Invoice not found",
+          });
+        }
+
+        return invoice;
+      })
 });

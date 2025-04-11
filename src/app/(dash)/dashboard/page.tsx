@@ -1,20 +1,16 @@
-import { getUser } from '@/hooks/getUser'
-import React from 'react'
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-const Dashboard = async () => {
-    const session = await getUser({ 
-        redirectTo: "/sign-in" 
-    });
+export default async function DashboardPage() {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
-    return (
-        <>
-        <div>
-            hi
-        </div>
-        </>
-      )
-    
+  return (
+    <div>
+      <h1>Dashboard</h1>
+    </div>
+  );
 }
-
-
-export default Dashboard;

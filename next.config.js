@@ -17,6 +17,11 @@ const config = {
                 protocol: "https",
                 hostname: "lh3.googleusercontent.com",
                 pathname: "/**",
+            },
+            {
+                protocol: "https",
+                hostname: 'img.clerk.com',
+                pathname: "/**"
             }
         ]
     },
@@ -25,7 +30,8 @@ const config = {
       },
       typescript: {
         ignoreBuildErrors: true
-      }
+      },
+
 };
 
 export default config;

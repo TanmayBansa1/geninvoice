@@ -5,6 +5,7 @@ import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "sonner";
+import { ClerkAuthProvider } from "@/components/providers/clerk-provider";
 
 export const metadata: Metadata = {
   title: "GenInvoice",
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <TRPCReactProvider>
-          {children}
-          <Toaster />
-        </TRPCReactProvider>
+        <ClerkAuthProvider>
+          <TRPCReactProvider>
+            {children}
+            <Toaster />
+          </TRPCReactProvider>
+        </ClerkAuthProvider>
       </body>
     </html>
   );
