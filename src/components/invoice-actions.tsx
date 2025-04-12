@@ -32,11 +32,11 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                       <Download className="size-4" /> Download
                     </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                {!isPaid && <DropdownMenuItem asChild>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left' onClick={() => window.open(`/edit`, '_blank')}>
                       <MailCheckIcon className="size-4" /> Send Reminder
                     </Button>
-                </DropdownMenuItem>
+                </DropdownMenuItem>}
                 {!isPaid && <DropdownMenuItem asChild onClick={() => markAsPaid.mutate({invoiceId})}>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left'>
                       <CheckCircle2 className="size-4" /> Paid?
