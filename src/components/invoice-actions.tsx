@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { api } from '@/trpc/react'
 import { Button } from './ui/button'
 import { useRouter } from 'next/navigation';
+import { sendReminder } from '@/lib/actions/send-reminder'
+import { toast } from 'sonner'
 const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string}) => {
   const deleteInvoice = api.invoice.deleteInvoice.useMutation();
   const markAsPaid = api.invoice.markAsPaid.useMutation();
@@ -33,7 +35,14 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                     </Button>
                 </DropdownMenuItem>
                 {!isPaid && <DropdownMenuItem asChild>
-                    <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left' onClick={() => window.open(`/edit`, '_blank')}>
+                    <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left' onClick={async () => {
+                      const response = await sendReminder(invoiceId);
+                      if(response.success){
+                        toast.success(response.success);
+                      }else{
+                        toast.error(response.error);
+                      }
+                    }}>
                       <MailCheckIcon className="size-4" /> Send Reminder
                     </Button>
                 </DropdownMenuItem>}

@@ -8,6 +8,7 @@ import { mailtrap, sender } from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TRPCError } from "@trpc/server";
 
+
 export const invoiceRouter = createTRPCRouter({
   createInvoice: protectedProcedure
     .input(z.object({
@@ -276,3 +277,4 @@ export const invoiceRouter = createTRPCRouter({
         
       }),
 });
+
