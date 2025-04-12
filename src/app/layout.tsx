@@ -27,7 +27,7 @@ export default function RootLayout({
         <ClerkAuthProvider>
           <TRPCReactProvider>
             {children}
-            <Toaster />
+            <Toaster richColors  />
           </TRPCReactProvider>
         </ClerkAuthProvider>
       </body>

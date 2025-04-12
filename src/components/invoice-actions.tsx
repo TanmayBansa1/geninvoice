@@ -1,7 +1,6 @@
 import React from 'react'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { CheckCircle2, Download, MailCheckIcon, MoreHorizontalIcon, Pencil, Trash } from 'lucide-react'
-import Link from 'next/link'
 import { api } from '@/trpc/react'
 import { Button } from './ui/button'
 import { useRouter } from 'next/navigation';
@@ -24,7 +23,15 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                       <Pencil className="size-4" /> Edit Invoice
                     </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild onClick={() => deleteInvoice.mutate({invoiceId})}>
+                <DropdownMenuItem asChild onClick={() => deleteInvoice.mutate({invoiceId},
+                  {
+                    onSuccess: () => {
+                      toast.success("Invoice deleted successfully");
+                    },
+                    onError: (error) => {
+                      toast.error("Failed to delete invoice");
+                    }
+                  })}>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left'>
                       <Trash className="size-4" /> Delete Invoice
                     </Button>
@@ -36,17 +43,24 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                 </DropdownMenuItem>
                 {!isPaid && <DropdownMenuItem asChild>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left' onClick={async () => {
-                      const response = await sendReminder(invoiceId);
-                      if(response.success){
-                        toast.success(response.success);
-                      }else{
-                        toast.error(response.error);
-                      }
+                      toast.promise(sendReminder(invoiceId), {
+                        loading: "Sending reminder...",
+                        success: "Reminder sent successfully",
+                        error: "Failed to send reminder"
+                      })
                     }}>
                       <MailCheckIcon className="size-4" /> Send Reminder
                     </Button>
                 </DropdownMenuItem>}
-                {!isPaid && <DropdownMenuItem asChild onClick={() => markAsPaid.mutate({invoiceId})}>
+                {!isPaid && <DropdownMenuItem asChild onClick={() => markAsPaid.mutate({invoiceId},
+                  {
+                    onSuccess: () => {
+                      toast.success("Invoice marked as paid");
+                    },
+                    onError: (error) => {
+                      toast.error("Failed to mark invoice as paid");
+                    }
+                  })}>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left'>
                       <CheckCircle2 className="size-4" /> Paid?
                     </Button>
