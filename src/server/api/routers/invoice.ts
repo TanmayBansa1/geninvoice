@@ -4,9 +4,10 @@ import {
   protectedProcedure,
 } from "@/server/api/trpc";
 import { type Invoice } from "@prisma/client";
-import { mailtrap, sender } from "@/lib/mailtrap";
+import { mailtrap} from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TRPCError } from "@trpc/server";
+
 
 
 export const invoiceRouter = createTRPCRouter({
@@ -71,6 +72,10 @@ export const invoiceRouter = createTRPCRouter({
             note: input.note,
           },
         });
+        const sender = {
+          email: "hello@geninvoices.tanmay.space",
+          name: invoice.fromName,
+        };
 
         await mailtrap.send({
           from: sender,
@@ -117,6 +122,10 @@ export const invoiceRouter = createTRPCRouter({
             userId: user.id, // Use the database ID
           },
         });
+        const sender = {
+          email: "hello@geninvoices.tanmay.space",
+          name: invoice.fromName,
+        };
         
         await mailtrap.send({
           from: sender,

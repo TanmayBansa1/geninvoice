@@ -16,11 +16,11 @@ export default async function DashboardPage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-3 md:gap-8 p-4">
         <div className="lg:col-span-2">
-          <InvoiceChart chartData={chartData} />
+          <InvoiceChart chartData={chartData} totalRevenue={totalRevenue} />
         </div>
-        {/* <div className="lg:col-span-1">
-          <InvoiceStatus />
-        </div> */}
+        <div className="lg:col-span-1">
+          
+        </div>
 
       </div>
     </>

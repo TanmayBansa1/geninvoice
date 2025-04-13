@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/server/db"
-import { mailtrap, sender } from "../mailtrap";
+import { mailtrap} from "../mailtrap";
 import { formatCurrency, formatDate } from "../format";
 
 export async function sendReminder(invoiceId: string) {
@@ -14,12 +14,14 @@ export async function sendReminder(invoiceId: string) {
         if (!invoice) {
           throw new Error("Invoice not found")
         }
-        const toEmail = invoice.toEmail;
-      
+        const sender = {
+          email: "hello@geninvoices.tanmay.space",
+          name: invoice.fromName,
+        };
         await mailtrap.send({
           from: sender,
           to: [{
-              email: toEmail,
+              email: invoice.toEmail,
           }],
           template_uuid: process.env.SEND_REMINDER_TEMPLATE!,
           template_variables: {
