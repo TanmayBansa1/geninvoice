@@ -22,7 +22,7 @@ export async function getAnalytics() {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [usd, inr, eur, paid, pending, totalInvoices] = await Promise.all([
+    const [usd, inr, eur, paid, pending, totalInvoices, rawChartData] = await Promise.all([
         db.invoice.aggregate({
             _sum:{
                 amount: true,
@@ -87,6 +87,22 @@ export async function getAnalytics() {
                     gte: thirtyDaysAgo
                 }
             }
+        }),
+        db.invoice.findMany({
+            where: {
+                userId: dbUser.id,
+                date: {
+                    gte: thirtyDaysAgo
+                },
+                status: 'PAID'
+            },
+            orderBy: {
+                date: 'asc'
+            },
+            select: {
+                date: true,
+                amount: true
+            }
         })
     ])
 
@@ -100,11 +116,35 @@ export async function getAnalytics() {
     const inrAmount = (inr._sum?.amount || 0) / rates.INR
     const eurAmount = (eur._sum?.amount || 0) / rates.EUR
     const totalRevenue = usdAmount + inrAmount + eurAmount
-
+    
+    const chartData = rawChartData.reduce((acc: {
+        [key: string]: number
+    }, curr) => {
+        const date = new Date(curr.date).toLocaleDateString("en-US",
+            {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }
+        )
+        acc[date] = (acc[date] || 0) + curr.amount
+        return acc
+    }, {})
+    
+    const formattedChartData = Object.entries(chartData).map(([date, amount]) => ({
+        date,
+        amount
+    })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(({date, amount}) => ({
+        date,
+        amount
+    }))
+    
     return {
         paid,
         pending,
         totalInvoices,
-        totalRevenue
+        totalRevenue,
+        chartData: formattedChartData
     }
 }
