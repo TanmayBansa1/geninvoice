@@ -1,9 +1,10 @@
 import DashboardBlock from "@/components/dashboard-block";
 import InvoiceChart from "@/components/InvoiceChart";
+import RecentInvoices from "@/components/recent-invoices";
 import { getAnalytics } from "@/lib/actions/get-analytics";
 
 export default async function DashboardPage() {
-  const { paid, pending, totalInvoices, totalRevenue, chartData } = await getAnalytics();
+  const { paid, pending, totalInvoices, totalRevenue, chartData, recentInvoices } = await getAnalytics();
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
           <InvoiceChart chartData={chartData} totalRevenue={totalRevenue} />
         </div>
         <div className="lg:col-span-1">
-          
+          <RecentInvoices recentInvoices={recentInvoices} />
         </div>
 
       </div>

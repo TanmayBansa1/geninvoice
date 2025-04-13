@@ -16,7 +16,7 @@ const InvoiceChart = (props: Props) => {
   return (
     <Card className=''>
         <CardHeader>
-            <CardTitle className='text-green-700'>Paid Invoices</CardTitle>
+            <CardTitle className='text-green-700 font-bold'>Paid Invoices</CardTitle>
                <span className='text-sm text-muted-foreground'>
                 You made ${props.totalRevenue} in the last 30 days.
                 </span>

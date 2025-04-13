@@ -80,7 +80,7 @@ export async function getAnalytics() {
                 }
             }
         }),
-        db.invoice.count({
+        db.invoice.findMany({
             where:{
                 userId: dbUser.id,
                 date: {
@@ -145,8 +145,17 @@ export async function getAnalytics() {
     return {
         paid,
         pending,
-        totalInvoices,
+        totalInvoices: totalInvoices.length,
         totalRevenue,
-        chartData: formattedChartData
+        chartData: formattedChartData,
+        recentInvoices: totalInvoices.slice(0, 10).map((invoice) => ({
+            invoiceId: invoice.id,
+            amount: invoice.amount,
+            currency: invoice.currency,
+            date: invoice.date,
+            status: invoice.status,
+            toName: invoice.toName,
+            toEmail: invoice.toEmail,
+        }))
     }
 }
