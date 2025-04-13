@@ -4,7 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart'
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 
-type Props = {}
+type Props = {
+    chartData: {
+        date: string,
+        amount: number
+    }[]
+}
 
 const InvoiceChart = (props: Props) => {
   return (
@@ -19,11 +24,11 @@ const InvoiceChart = (props: Props) => {
             <ChartContainer config={
 {                amount: {
                     label: 'Amount',
-                    color: 'hsl(var(--primary))',
+                    color: 'lightgreen',
                 }}
             } className='min-h-[300px]'>
                 <ResponsiveContainer width='100%' height='100%'>
-                    <LineChart>
+                    <LineChart data={props.chartData}>
                         <XAxis dataKey="date"></XAxis>
                         <YAxis ></YAxis>
                         <ChartTooltip content={<ChartTooltipContent indicator='line'></ChartTooltipContent>}></ChartTooltip>

@@ -101,7 +101,8 @@ export async function getAnalytics() {
             },
             select: {
                 date: true,
-                amount: true
+                amount: true,
+                currency: true
             }
         })
     ])
@@ -115,7 +116,7 @@ export async function getAnalytics() {
     const usdAmount = usd._sum?.amount || 0
     const inrAmount = (inr._sum?.amount || 0) / rates.INR
     const eurAmount = (eur._sum?.amount || 0) / rates.EUR
-    const totalRevenue = usdAmount + inrAmount + eurAmount
+    const totalRevenue = (usdAmount + inrAmount + eurAmount).toFixed(2)
     
     const chartData = rawChartData.reduce((acc: {
         [key: string]: number
@@ -127,7 +128,8 @@ export async function getAnalytics() {
                 year: 'numeric'
             }
         )
-        acc[date] = (acc[date] || 0) + curr.amount
+        const amountToAdd = curr.currency === 'USD' ? curr.amount : curr.amount / rates[curr.currency]
+        acc[date] = (acc[date] || 0) + amountToAdd
         return acc
     }, {})
     
