@@ -213,7 +213,7 @@ export default function Home() {
             className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
           >
             {[
-              { value: "99%", label: "Faster Invoice Creation" },
+              { value: "70%", label: "Faster Invoice Creation" },
               { value: "50%", label: "Reduced Payment Time" },
               { value: "24/7", label: "Customer Support" }
             ].map((stat, index) => (
