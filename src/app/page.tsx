@@ -1,101 +1,204 @@
 "use client"
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle } from 'lucide-react';
-import { Geist } from 'next/font/google';
 
-const geist = Geist({
-  subsets: ['latin'],
-  display: 'swap',
-});
+import { motion, useScroll, useTransform } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { ArrowRight, BarChart, Zap, Shield, Clock, Sparkles } from "lucide-react"
+import Link from "next/link"
+import { useRef } from "react"
+
+const features = [
+  {
+    icon: <BarChart className="w-6 h-6" />,
+    title: "Smart Analytics",
+    description: "Real-time insights into your business finances"
+  },
+  {
+    icon: <Zap className="w-6 h-6" />,
+    title: "Lightning Fast",
+    description: "Generate professional invoices in seconds"
+  },
+  {
+    icon: <Shield className="w-6 h-6" />,
+    title: "Bank-Grade Security",
+    description: "Your data is protected with enterprise security"
+  },
+  {
+    icon: <Clock className="w-6 h-6" />,
+    title: "Time-Saving",
+    description: "Automate your entire invoicing workflow"
+  }
+]
 
 export default function Home() {
-  const features = [
-    'Automated Invoice Generation',
-    'Real-time Financial Tracking',
-    'Seamless Client Management',
-    'Advanced Reporting Tools'
-  ];
+  const containerRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 overflow-hidden ${geist.className}`}>
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="container mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center"
-      >
-        <div className="space-y-6">
-          <motion.h1 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl font-bold text-gray-900 leading-tight"
-          >
-            Simplify Your <span className="text-indigo-600">Invoicing</span> Process
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-xl text-gray-600"
-          >
-            GenInvoice transforms financial management for modern businesses with intelligent, automated solutions.
-          </motion.p>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-emerald-50 to-white">
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <motion.div 
+          style={{ y, opacity }}
+          className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-500/20"
+        />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="space-y-3"
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl mx-auto text-center"
           >
-            {features.map((feature, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <CheckCircle className="text-indigo-600" />
-                <span className="text-gray-700">{feature}</span>
-              </div>
-            ))}
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="flex space-x-4"
-          >
-            <Button 
-              onClick={() => window.location.href = '/sign-in'}
-              className="bg-indigo-600 hover:bg-indigo-700 transition-all"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 mb-8"
             >
-              Get Started <ArrowRight className="ml-2" />
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.href = '/demo'}
-              className="border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm font-medium">Free Forever</span>
+            </motion.div>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-6xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight"
             >
-              Watch Demo
-            </Button>
+              Invoice Management,{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
+                Simplified
+              </span>
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto"
+            >
+              Create beautiful invoices, track payments, and manage your business finances with our intuitive platform.
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <Link href="/sign-up">
+                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
+                  Get Started <ArrowRight className="ml-2" />
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
-        
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="hidden md:flex justify-center items-center"
-        >
-          <Image 
-            src="/hero.png" 
-            alt="GenInvoice Dashboard" 
-            width={500} 
-            height={500} 
-            className="drop-shadow-xl"
-          />
-        </motion.div>
-      </motion.div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-32 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+                className="p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all border border-emerald-100"
+              >
+                <div className="text-emerald-600 mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-32 bg-gradient-to-b from-emerald-50 to-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              whileInView={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              className="p-8 rounded-2xl bg-white shadow-lg border border-emerald-100"
+            >
+              <h3 className="text-4xl font-bold text-emerald-600 mb-2">99%</h3>
+              <p className="text-gray-600">Faster Invoice Creation</p>
+            </motion.div>
+            <motion.div
+              initial={{ scale: 0.8 }}
+              whileInView={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              whileHover={{ scale: 1.05 }}
+              className="p-8 rounded-2xl bg-white shadow-lg border border-emerald-100"
+            >
+              <h3 className="text-4xl font-bold text-emerald-600 mb-2">50%</h3>
+              <p className="text-gray-600">Reduced Payment Time</p>
+            </motion.div>
+            <motion.div
+              initial={{ scale: 0.8 }}
+              whileInView={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              whileHover={{ scale: 1.05 }}
+              className="p-8 rounded-2xl bg-white shadow-lg border border-emerald-100"
+            >
+              <h3 className="text-4xl font-bold text-emerald-600 mb-2">24/7</h3>
+              <p className="text-gray-600">Customer Support</p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-32 bg-gradient-to-r from-emerald-600 to-teal-600">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Ready to Streamline Your Invoicing?
+            </h2>
+            <p className="text-xl text-emerald-100 mb-8">
+              Join thousands of businesses that trust our platform for their invoicing needs.
+            </p>
+            <Link href="/sign-up">
+              <Button
+                size="lg"
+                className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg shadow-emerald-500/20"
+              >
+                Get Started Now
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
     </div>
-  );
+  )
 }
