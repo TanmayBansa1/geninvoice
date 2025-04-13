@@ -9,16 +9,17 @@ type Props = {
         date: string,
         amount: number
     }[]
+    totalRevenue: string
 }
 
 const InvoiceChart = (props: Props) => {
   return (
     <Card className=''>
         <CardHeader>
-            <CardTitle>Paid Invoices</CardTitle>
-            <CardDescription className='text-sm text-muted-foreground'>
-                You made $1000 in the last 30 days.
-            </CardDescription>
+            <CardTitle className='text-green-700'>Paid Invoices</CardTitle>
+               <span className='text-sm text-muted-foreground'>
+                You made ${props.totalRevenue} in the last 30 days.
+                </span>
         </CardHeader>
         <CardContent>
             <ChartContainer config={
