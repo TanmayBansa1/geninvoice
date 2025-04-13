@@ -14,10 +14,10 @@ const DashboardBlock = (props: Props) => {
     <div className='w-full p-3'>
         <Card>
             <CardHeader>
-                <CardTitle className='text-xl font-bold'>{props.title}</CardTitle>
+                <CardTitle className='text-xl font-bold text-green-700'>{props.title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <h2 className='text-xl font-semibold flex items-center'>
+                <h2 className='text-xl font-semibold flex items-center text-green-400'>
                     {props.isDollar ? <DollarSignIcon className='w-4 h-4' /> : <Plus className='w-4 h-4' />}
                     {props.data}
                 </h2>
