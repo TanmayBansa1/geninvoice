@@ -3,10 +3,39 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/api/trpc";
-import { type Invoice } from "@prisma/client";
 import { mailtrap} from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TRPCError } from "@trpc/server";
+
+function getTemplateVariables(input: any, invoice: any) {
+  return {
+    toName: input.toName,
+    amount: formatCurrency({amount: input.total, currency: input.currency}).formatted,
+    fromName: input.fromName,
+    sno: input.sno,
+    invoiceDate: formatDate(input.date),
+    payDate: formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
+    status: input.status,
+    toAddress: input.toAddress,
+    toEmail: input.toEmail,
+    fromAddress: input.fromAddress,
+    fromEmail: input.fromEmail,
+    items: input.items.map((item: any) => ({
+      description: item.description,
+      quantity: item.quantity,
+      price: formatCurrency({amount: item.price, currency: input.currency}).formatted,
+      amount: formatCurrency({amount: item.amount, currency: input.currency}).formatted
+    })),
+    subtotal: formatCurrency({amount: input.subtotal, currency: input.currency}).formatted,
+    discount: input.discount,
+    discountAmount: formatCurrency({amount: (input.subtotal * input.discount) / 100, currency: input.currency}).formatted || "0",
+    tax: input.tax,
+    taxAmount: formatCurrency({amount: ((input.subtotal - (input.subtotal * (input.discount ?? 0) / 100)) * input.tax) / 100, currency: input.currency}).formatted || "0",
+    total: formatCurrency({amount: input.total, currency: input.currency}).formatted,
+    note: input.note || "",
+    invoiceLink: `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
+  };
+}
 
 export const invoiceRouter = createTRPCRouter({
   createInvoice: protectedProcedure
@@ -98,21 +127,7 @@ export const invoiceRouter = createTRPCRouter({
           from: sender,
           to: [{email: input.toEmail, name: input.toName}],
           template_uuid: process.env.EDIT_INVOICE_TEMPLATE!,
-          template_variables: {
-            "toName": input.toName,
-            "amount": formatCurrency({amount: input.total, currency: input.currency}).formatted,
-            "fromName": input.fromName,
-            "sno": input.sno,
-            "invoiceDate": formatDate(input.date),
-            "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
-            "status": input.status,
-            "toAddress": input.toAddress,
-            "toEmail": input.toEmail,
-            "fromAddress": input.fromAddress,
-            "fromEmail": input.fromEmail,
-            "description": input.items[0]?.description || "",
-            "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
-          }
+          template_variables: getTemplateVariables(input, invoice)
         }).then(console.log, console.error);
         
         return invoice;
@@ -162,21 +177,7 @@ export const invoiceRouter = createTRPCRouter({
         from: sender,
         to: [{email: input.toEmail, name: input.toName}],
         template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
-        template_variables: {
-          "toName": input.toName,
-          "amount": formatCurrency({amount: input.total, currency: input.currency}).formatted,
-          "fromName": input.fromName,
-          "sno": input.sno,
-          "invoiceDate": formatDate(input.date),
-          "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
-          "status": input.status,
-          "toAddress": input.toAddress,
-          "toEmail": input.toEmail,
-          "fromAddress": input.fromAddress,
-          "fromEmail": input.fromEmail,
-          "description": input.items[0]?.description || "",
-          "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
-        }
+        template_variables: getTemplateVariables(input, invoice)
       }).then(console.log, console.error);
       
       return invoice;
