@@ -65,17 +65,17 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="[&>div]:bg-transparent [&>div]:border-transparent [&>div]:shadow-none">
-      <SidebarHeader className="p-4 border-b border-emerald-300/50 backdrop-blur-sm bg-white/20">
+      <SidebarHeader className="p-8 border-b border-emerald-300/50 backdrop-blur-sm bg-white/20 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="flex items-center gap-2"
         >
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-            <Infinity className="w-5 h-5 text-white" />
+          <div className="size-12 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
+            <Infinity className="size-10 text-white" />
           </div>
-          <span className="font-semibold text-emerald-900">GenInvoice</span>
+          <span className="font-semibold text-emerald-900 text-4xl">GenInvoice</span>
         </motion.div>
       </SidebarHeader>
 
