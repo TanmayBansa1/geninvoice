@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string}) => {
   const deleteInvoice = api.invoice.deleteInvoice.useMutation();
   const markAsPaid = api.invoice.markAsPaid.useMutation();
+  const utils = api.useUtils();
   const router = useRouter();
   return (
     <div>
@@ -27,6 +28,7 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                   {
                     onSuccess: () => {
                       toast.success("Invoice deleted successfully");
+                      utils.invoice.getInvoices.invalidate();
                     },
                     onError: (error) => {
                       toast.error("Failed to delete invoice");
@@ -56,6 +58,7 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                   {
                     onSuccess: () => {
                       toast.success("Invoice marked as paid");
+                      utils.invoice.getInvoices.invalidate();
                     },
                     onError: (error) => {
                       toast.error("Failed to mark invoice as paid");
