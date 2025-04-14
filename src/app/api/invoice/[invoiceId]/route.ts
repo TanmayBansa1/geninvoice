@@ -13,6 +13,9 @@ export  async function GET(req: NextRequest, {
     const invoice = await db.invoice.findUnique({
         where: {
             id: invoiceId,
+        },
+        include: {
+            items: true,
         }
     })
     if(!invoice){
@@ -35,25 +38,30 @@ pdf.text(invoice.invoiceName, 20, 20);
 pdf.setFontSize(12);
 pdf.text("From", 20, 40);
 pdf.setFontSize(10);
-pdf.text([invoice.fromName, invoice.fromEmail, invoice.fromAddress], 20, 45);
+
+// Split address into lines
+const fromAddressLines = pdf.splitTextToSize(invoice.fromAddress, 60);
+pdf.text([invoice.fromName, invoice.fromEmail, ...fromAddressLines], 20, 45);
 
 // Client Section
 pdf.setFontSize(12);
 pdf.text("Bill to", 20, 70);
 pdf.setFontSize(10);
-pdf.text([invoice.toName, invoice.toEmail, invoice.toAddress], 20, 75);
 
-// Invoice details
+// Split address into lines
+const toAddressLines = pdf.splitTextToSize(invoice.toAddress, 60);
+pdf.text([invoice.toName, invoice.toEmail, ...toAddressLines], 20, 75);
+
+const invoiceDetailsY = 40;
 pdf.setFontSize(10);
-pdf.text(`Invoice Number: #${invoice.sno}`, 120, 40);
-pdf.text(`Date: ${formatDate(invoice.date)}`, 120, 45);
+pdf.text(`Invoice Number: #${invoice.sno}`, 120, invoiceDetailsY);
+pdf.text(`Date: ${formatDate(invoice.date)}`, 120, invoiceDetailsY + 5);
 if(invoice.status === "PENDING"){
-  pdf.text(`Due Date: ${formatDate(new Date(invoice.date.getTime() + (invoice.dueDate ?? 0) * 24 * 60 * 60 * 1000))}`, 120, 50);
+  pdf.text(`Due Date: ${formatDate(new Date(invoice.date.getTime() + (invoice.dueDate ?? 0) * 24 * 60 * 60 * 1000))}`, 120, invoiceDetailsY + 10);
 }else{
-  pdf.text(`Paid Date: ${formatDate(invoice.date)}`, 120, 50);
+  pdf.text(`Paid Date: ${formatDate(invoice.date)}`, 120, invoiceDetailsY + 10);
 }
-
-pdf.text(`Status: ${invoice.status}`, 120, 55);
+pdf.text(`Status: ${invoice.status}`, 120, invoiceDetailsY + 15);
 
 // Item table header
 pdf.setFontSize(10);
@@ -67,39 +75,103 @@ pdf.text("Total", 160, 100);
 pdf.line(20, 102, 190, 102);
 
 // Item Details
-pdf.setFont("helvetica", "normal");
-pdf.text(invoice.description, 20, 110);
-pdf.text(invoice.quantity.toString(), 100, 110);
-pdf.text(
-  formatCurrency({
-    amount: invoice.amount,
-    currency: invoice.currency,
-  }).formatted,
-  130,
-  110
-);
-pdf.text(
-  formatCurrency({ amount: invoice.amount, currency: invoice.currency }).formatted,
-  160,
-  110
-);
+let yPosition = 110;
+const lineHeight = 10;
+const totalAmount = invoice.items.reduce((sum, item) => sum + item.amount, 0);
 
-// Total Section
-pdf.line(20, 115, 190, 115);
+// Function to format currency with proper symbol
+const formatCurrencyWithSymbol = (amount: number, currency: string) => {
+  if (currency === "INR") {
+    return `Rs. ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+  return formatCurrency({ amount, currency }).formatted;
+};
+
+// Calculate totals
+const subtotal = totalAmount;
+const discountAmount = (subtotal * (invoice.discount || 0)) / 100;
+const taxAmount = ((subtotal - discountAmount) * (invoice.tax || 0)) / 100;
+const finalTotal = subtotal - discountAmount + taxAmount;
+
+invoice.items.forEach((item, index) => {
+  if (yPosition > 250) {
+    pdf.addPage();
+    yPosition = 20;
+  }
+
+  pdf.setFont("helvetica", "normal");
+  pdf.text(item.description || "", 20, yPosition);
+  pdf.text(item.quantity.toString() || "", 100, yPosition);
+  pdf.text(
+    formatCurrencyWithSymbol(item.price, invoice.currency),
+    130,
+    yPosition
+  );
+  pdf.text(
+    formatCurrencyWithSymbol(item.amount, invoice.currency),
+    160,
+    yPosition
+  );
+
+  yPosition += lineHeight;
+});
+
+// Totals Section
+pdf.line(20, yPosition, 190, yPosition);
+yPosition += lineHeight;
+
+// Subtotal
 pdf.setFont("helvetica", "bold");
-pdf.text(`Total (${invoice.currency})`, 130, 130);
+pdf.text("Subtotal", 130, yPosition);
 pdf.text(
-  formatCurrency({ amount: invoice.amount, currency: invoice.currency }).formatted,
+  formatCurrencyWithSymbol(subtotal, invoice.currency),
   160,
-  130
+  yPosition
+);
+yPosition += lineHeight;
+
+// Discount
+if (invoice.discount && invoice.discount > 0) {
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Discount (${invoice.discount}%)`, 130, yPosition);
+  pdf.text(
+    `-${formatCurrencyWithSymbol(discountAmount, invoice.currency)}`,
+    160,
+    yPosition
+  );
+  yPosition += lineHeight;
+}
+
+// Tax
+if (invoice.tax && invoice.tax > 0) {
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Tax (${invoice.tax}%)`, 130, yPosition);
+  pdf.text(
+    formatCurrencyWithSymbol(taxAmount, invoice.currency),
+    160,
+    yPosition
+  );
+  yPosition += lineHeight;
+}
+
+// Final Total
+pdf.line(20, yPosition, 190, yPosition);
+yPosition += lineHeight;
+pdf.setFont("helvetica", "bold");
+pdf.text(`Total (${invoice.currency})`, 130, yPosition);
+pdf.text(
+  formatCurrencyWithSymbol(finalTotal, invoice.currency),
+  160,
+  yPosition
 );
 
 //Additional Note
 if (invoice.note) {
+  yPosition += lineHeight * 2;
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(10);
-  pdf.text("Note:", 20, 150);
-  pdf.text(invoice.note, 20, 155);
+  pdf.text("Note:", 20, yPosition);
+  pdf.text(invoice.note, 20, yPosition + 5);
 }
     const pdfBuffer = Buffer.from(pdf.output("arraybuffer"));
 
