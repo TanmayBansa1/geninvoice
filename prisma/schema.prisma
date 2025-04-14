@@ -29,34 +29,43 @@ model User {
 }
 
 model Invoice {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String        @id @default(cuid())
   invoiceName String
   sno         Int
-  status      InvoiceStatus
+  status      InvoiceStatus @default(PENDING)
   currency    String
-  dueDate     Int?
+  dueDate     Int
   date        DateTime
-
   fromName    String
   fromEmail   String
   fromAddress String
+  toName      String
+  toEmail     String
+  toAddress   String
+  note        String?
+  discount    Float         @default(0)
+  tax         Float         @default(0)
+  subtotal    Float         @default(0)
+  total       Float         @default(0)
+  items       InvoiceItem[]
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  toName    String
-  toEmail   String
-  toAddress String
+  @@unique([sno, userId])
+}
 
+model InvoiceItem {
+  id          String   @id @default(cuid())
   description String
-  quantity    Int
-  rate        Int
-  amount      Int
-
-  note String?
-
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
+  quantity    Float
+  price       Float
+  amount      Float
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  invoiceId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum InvoiceStatus {
