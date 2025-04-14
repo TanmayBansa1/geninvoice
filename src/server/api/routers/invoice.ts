@@ -8,14 +8,12 @@ import { mailtrap} from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TRPCError } from "@trpc/server";
 
-
-
 export const invoiceRouter = createTRPCRouter({
   createInvoice: protectedProcedure
     .input(z.object({
       invoiceName: z.string(),
       sno: z.number(),
-      status: z.enum(["PAID", "PENDING"]),
+      status: z.enum(["PAID", "PENDING", "DRAFT"]),
       currency: z.string(),
       dueDate: z.number(),
       date: z.date(),
@@ -25,15 +23,20 @@ export const invoiceRouter = createTRPCRouter({
       toName: z.string(),
       toEmail: z.string().email(),
       toAddress: z.string(),
-      description: z.string(),
-      quantity: z.number(),
-      rate: z.number(),
-      amount: z.number(),
       note: z.string().optional(),
-      invoiceId: z.string().optional(),
+      discount: z.number().default(0),
+      tax: z.number().default(0),
+      subtotal: z.number().default(0),
+      total: z.number().default(0),
+      items: z.array(z.object({
+        description: z.string(),
+        quantity: z.number(),
+        price: z.number(),
+        amount: z.number()
+      })),
+      invoiceId: z.string().optional()
     }))
-    .mutation(async ({ ctx, input }): Promise<Invoice> => {
-      // First get the user's database ID
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
         where: {
           clerkId: ctx.userId,
@@ -48,6 +51,7 @@ export const invoiceRouter = createTRPCRouter({
       }
 
       if(input.invoiceId){
+        // Update existing invoice
         const invoice = await ctx.db.invoice.update({
           where: {
             id: input.invoiceId,
@@ -65,13 +69,26 @@ export const invoiceRouter = createTRPCRouter({
             toName: input.toName,
             toEmail: input.toEmail,
             toAddress: input.toAddress,
-            description: input.description,
-            quantity: input.quantity,
-            rate: input.rate,
-            amount: input.amount,
             note: input.note,
+            discount: input.discount,
+            tax: input.tax,
+            subtotal: input.subtotal,
+            total: input.total,
+            items: {
+              deleteMany: {}, // Delete all existing items
+              create: input.items.map(item => ({
+                description: item.description,
+                quantity: item.quantity,
+                price: item.price,
+                amount: item.amount
+              }))
+            }
           },
+          include: {
+            items: true
+          }
         });
+
         const sender = {
           email: "hello@geninvoices.tanmay.space",
           name: invoice.fromName,
@@ -83,7 +100,7 @@ export const invoiceRouter = createTRPCRouter({
           template_uuid: process.env.EDIT_INVOICE_TEMPLATE!,
           template_variables: {
             "toName": input.toName,
-            "amount": formatCurrency({amount: input.amount, currency: input.currency}).formatted,
+            "amount": formatCurrency({amount: input.total, currency: input.currency}).formatted,
             "fromName": input.fromName,
             "sno": input.sno,
             "invoiceDate": formatDate(input.date),
@@ -93,66 +110,81 @@ export const invoiceRouter = createTRPCRouter({
             "toEmail": input.toEmail,
             "fromAddress": input.fromAddress,
             "fromEmail": input.fromEmail,
-            "description": input.description,
-            "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
-          }
-        }).then(console.log, console.error);
-        
-        return invoice;
-      } else {
-        const invoice = await ctx.db.invoice.create({
-          data: {
-            invoiceName: input.invoiceName,
-            sno: input.sno,
-            status: input.status,
-            currency: input.currency,
-            dueDate: input.dueDate,
-            date: input.date,
-            fromName: input.fromName,
-            fromEmail: input.fromEmail,
-            fromAddress: input.fromAddress,
-            toName: input.toName,
-            toEmail: input.toEmail,
-            toAddress: input.toAddress,
-            description: input.description,
-            quantity: input.quantity,
-            rate: input.rate,
-            amount: input.amount,
-            note: input.note,
-            userId: user.id, // Use the database ID
-          },
-        });
-        const sender = {
-          email: "hello@geninvoices.tanmay.space",
-          name: invoice.fromName,
-        };
-        
-        await mailtrap.send({
-          from: sender,
-          to: [{email: input.toEmail, name: input.toName}],
-          template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
-          template_variables: {
-            "toName": input.toName,
-            "amount": formatCurrency({amount: input.amount, currency: input.currency}).formatted,
-            "fromName": input.fromName,
-            "sno": input.sno,
-            "invoiceDate": formatDate(input.date),
-            "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
-            "status": input.status,
-            "toAddress": input.toAddress,
-            "toEmail": input.toEmail,
-            "fromAddress": input.fromAddress,
-            "fromEmail": input.fromEmail,
-            "description": input.description,
+            "description": input.items[0]?.description || "",
             "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
           }
         }).then(console.log, console.error);
         
         return invoice;
       }
+
+      // Create new invoice
+      const invoice = await ctx.db.invoice.create({
+        data: {
+          invoiceName: input.invoiceName,
+          sno: input.sno,
+          status: input.status,
+          currency: input.currency,
+          dueDate: input.dueDate,
+          date: input.date,
+          fromName: input.fromName,
+          fromEmail: input.fromEmail,
+          fromAddress: input.fromAddress,
+          toName: input.toName,
+          toEmail: input.toEmail,
+          toAddress: input.toAddress,
+          note: input.note,
+          discount: input.discount,
+          tax: input.tax,
+          subtotal: input.subtotal,
+          total: input.total,
+          userId: user.id,
+          items: {
+            create: input.items.map(item => ({
+              description: item.description,
+              quantity: item.quantity,
+              price: item.price,
+              amount: item.amount
+            }))
+          }
+        },
+        include: {
+          items: true
+        }
+      });
+
+      const sender = {
+        email: "hello@geninvoices.tanmay.space",
+        name: invoice.fromName,
+      };
+      
+      await mailtrap.send({
+        from: sender,
+        to: [{email: input.toEmail, name: input.toName}],
+        template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
+        template_variables: {
+          "toName": input.toName,
+          "amount": formatCurrency({amount: input.total, currency: input.currency}).formatted,
+          "fromName": input.fromName,
+          "sno": input.sno,
+          "invoiceDate": formatDate(input.date),
+          "payDate": formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
+          "status": input.status,
+          "toAddress": input.toAddress,
+          "toEmail": input.toEmail,
+          "fromAddress": input.fromAddress,
+          "fromEmail": input.fromEmail,
+          "description": input.items[0]?.description || "",
+          "invoiceLink": `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
+        }
+      }).then(console.log, console.error);
+      
+      return invoice;
     }),
-    
-    getInvoices: protectedProcedure.query(async ({ ctx }) => {
+
+  getInvoicebyId: protectedProcedure
+    .input(z.object({invoiceId: z.string()}))
+    .query(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
         where: {
           clerkId: ctx.userId,
@@ -166,124 +198,134 @@ export const invoiceRouter = createTRPCRouter({
         });
       }
 
-      const invoices = await ctx.db.invoice.findMany({
+      const invoice = await ctx.db.invoice.findFirst({
         where: {
+          id: input.invoiceId,
           userId: user.id,
         },
         select: {
           id: true,
+          sno: true,
           invoiceName: true,
-          toName: true,
-          amount: true,
           status: true,
+          currency: true,
+          dueDate: true,
           date: true,
-          currency: true
-        },
-        orderBy: {
-          createdAt: "desc"
+          fromName: true,
+          fromEmail: true,
+          fromAddress: true,
+          toName: true,
+          toEmail: true,
+          toAddress: true,
+          note: true,
+          discount: true,
+          tax: true,
+          subtotal: true,
+          total: true,
+          items: {
+            select: {
+              id: true,
+              description: true,
+              quantity: true,
+              price: true,
+              amount: true
+            }
+          }
         }
       });
       
-      return invoices;
+      if (!invoice) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invoice not found",
+        });
+      }
+
+      return invoice;
     }),
+
+  getInvoices: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findUnique({
+      where: {
+        clerkId: ctx.userId,
+      },
+    });
+
+    if (!user) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+    }
+
+    const invoices = await ctx.db.invoice.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        invoiceName: true,
+        toName: true,
+        total: true,
+        status: true,
+        date: true,
+        currency: true
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
     
-    getInvoicebyId: protectedProcedure
-      .input(z.object({invoiceId: z.string()}))
-      .query(async ({ ctx, input }) => {
-        const user = await ctx.db.user.findUnique({
-          where: {
-            clerkId: ctx.userId,
-          },
-        });
+    return invoices;
+  }),
 
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "User not found",
-          });
-        }
+  deleteInvoice: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
+    const user = await ctx.db.user.findUnique({
+      where: {
+        clerkId: ctx.userId,
+      },
+    });
 
-        const invoice = await ctx.db.invoice.findFirst({
-          where: {
-            id: input.invoiceId,
-            userId: user.id, // Ensure the invoice belongs to the user
-          },
-          select: {
-            sno: true,
-            invoiceName: true,
-            status: true,
-            currency: true,
-            dueDate: true,
-            date: true,
-            fromName: true,
-            fromEmail: true,
-            fromAddress: true,
-            toName: true,
-            toEmail: true,
-            toAddress: true,
-            description: true,
-            quantity: true,
-            rate: true,
-            amount: true,
-            note: true
-          }
-        });
-        
-        if (!invoice) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Invoice not found",
-          });
-        }
+    if (!user) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+    }
 
-        return invoice;
-      }),
-      deleteInvoice: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
-        const user = await ctx.db.user.findUnique({
-          where: {
-            clerkId: ctx.userId,
-          },
-        });
+    await ctx.db.invoice.delete({
+      where: {
+        id: input.invoiceId,
+        userId: user.id,
+      },
+    });
 
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "User not found",
-          });
-        }
+  }),
 
-        await ctx.db.invoice.delete({
-          where: {
-            id: input.invoiceId,
-            userId: user.id,
-          },
-        });
+  markAsPaid: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
+    const user = await ctx.db.user.findUnique({
+      where: {
+        clerkId: ctx.userId,
+      },
+    });
 
-      }),
-      markAsPaid: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
-        const user = await ctx.db.user.findUnique({
-          where: {
-            clerkId: ctx.userId,
-          },
-        });
+    if (!user) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+    }
 
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "User not found",
-          });
-        }
-
-        await ctx.db.invoice.update({
-          where: {
-            id: input.invoiceId,
-            userId: user.id,
-          },
-          data: {
-            status: "PAID",
-          },
-        });
-        
-      }),
+    await ctx.db.invoice.update({
+      where: {
+        id: input.invoiceId,
+        userId: user.id,
+      },
+      data: {
+        status: "PAID",
+      },
+    });
+    
+  }),
 });
 
