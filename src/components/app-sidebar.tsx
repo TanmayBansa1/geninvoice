@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { CreditCard, HomeIcon, Infinity, Info, ChevronRight, ChevronDown } from "lucide-react"
+import { CreditCard, HomeIcon, Infinity, Info, ChevronRight, ChevronDown, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -17,8 +17,9 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { api } from "@/trpc/react"
+import { useState } from "react"
 
 // This is sample data.
 const data = {
@@ -52,6 +53,8 @@ const data = {
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
   const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({})
 
   const toggleGroup = (title: string) => {
@@ -59,6 +62,11 @@ export function AppSidebar() {
       ...prev,
       [title]: !prev[title]
     }))
+  }
+
+  const handleOnboardClick = () => {
+    setIsNavigating(true)
+    router.push("/onboard")
   }
 
   const { data: user, isLoading } = api.user.me.useQuery();
@@ -159,21 +167,25 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link 
-                  href="/onboard" 
-                  className="py-8 bg-gradient-to-r from-amber-400 to-amber-500 w-full rounded-full p-4 mx-auto group 
-                    hover:from-amber-300 hover:to-amber-400
-                    hover:text-yellow-900 
-                    hover:scale-105 
-                    transition-all 
-                    duration-300 shadow-sm"
-                >
-                <Info className="size-6 group-hover:text-yellow-900" />
-                  <p className="font-medium text-yellow-800 group-hover:text-yellow-900 transition-colors duration-300">
-                    Finish Setting up your profile
-                  </p>
-                </Link>
+              <SidebarMenuButton 
+                onClick={handleOnboardClick}
+                className="py-8 bg-gradient-to-r from-amber-400 to-amber-500 w-full rounded-full p-4 mx-auto group 
+                  hover:from-amber-300 hover:to-amber-400
+                  hover:text-yellow-900 
+                  hover:scale-105 
+                  transition-all 
+                  duration-300 shadow-sm
+                  cursor-pointer"
+                disabled={isNavigating}
+              >
+                {isNavigating ? (
+                  <Loader2 className="size-6 animate-spin text-yellow-800" />
+                ) : (
+                  <Info className="size-6 group-hover:text-yellow-900" />
+                )}
+                <p className="font-medium text-yellow-800 group-hover:text-yellow-900 transition-colors duration-300">
+                  {isNavigating ? "Loading..." : "Finish Setting up your profile"}
+                </p>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
