@@ -84,7 +84,7 @@ export default function Home() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-emerald-50 via-emerald-100 to-teal-100 overflow-hidden relative">
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-emerald-50 to-green-400 overflow-hidden relative">
       {/* Soft Background Gradient Animation */}
       <motion.div 
         initial={{ backgroundPosition: "0% 50%" }}
@@ -158,7 +158,7 @@ export default function Home() {
               <Link href="/sign-up">
                 <Button 
                   size="lg" 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-500/30 hover:scale-105 transition-transform duration-300"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-500 hover:scale-105 transition-transform duration-300"
                 >
                   Get Started <ArrowRight className="ml-2" />
                 </Button>
@@ -169,7 +169,7 @@ export default function Home() {
       </section>
 
       {/* Features Section with Fluid Transitions */}
-      <section className="py-32 bg-gradient-to-b from-teal-100 via-emerald-100 to-teal-100">
+      <section className="py-32 bg-gradient-to-b from-green-200 via-emerald-100 to-teal-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -204,7 +204,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section with Soft Animations */}
-      <section className="py-32 bg-gradient-to-b from-emerald-100 via-teal-100 to-emerald-50">
+      <section className="py-32 bg-gradient-to-b from-teal-50 via-teal-100 to-green-200">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
