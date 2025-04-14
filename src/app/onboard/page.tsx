@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import SubmitButton from "../_components/submitButton";
+import SubmitButton from "../../components/submitButton";
 
 // Zod schema for form validation
 const formSchema = z.object({

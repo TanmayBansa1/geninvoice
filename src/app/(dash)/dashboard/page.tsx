@@ -28,7 +28,7 @@ export default function DashboardPage() {
     pending: number;
     totalInvoices: number;
     totalRevenue: string;
-    chartData: { date: string; amount: number; }[];
+    chartData: { date: string; total: number; }[];
     recentInvoices: any[];
   } | null>(null);
 
