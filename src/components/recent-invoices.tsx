@@ -9,7 +9,7 @@ interface RecentInvoicesProps {
     invoiceId: string;
     toName: string;
     toEmail: string;
-    amount: number;
+    total: number;
     currency: string;
     status: "PAID" | "PENDING" | "DRAFT";
     date: Date;
@@ -53,7 +53,7 @@ const RecentInvoices = ({ recentInvoices }: RecentInvoicesProps) => {
           
           <div className="flex items-center justify-between">
             <p className="text-sm text-emerald-600">
-              {formatCurrency({ amount: invoice.amount, currency: invoice.currency }).formatted}
+              {formatCurrency({ amount: invoice.total, currency: invoice.currency }).formatted}
             </p>
             <p className="text-xs text-emerald-500">{formatDate(invoice.date)}</p>
           </div>

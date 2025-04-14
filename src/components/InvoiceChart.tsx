@@ -7,7 +7,7 @@ import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } fro
 interface InvoiceChartProps {
   chartData: {
     date: string;
-    amount: number;
+    total: number;
   }[];
   totalRevenue: number;
 }
@@ -22,7 +22,7 @@ export function InvoiceChart({ chartData, totalRevenue }: InvoiceChartProps) {
     >
       <ChartContainer 
         config={{
-          amount: {
+          total: {
             label: 'Amount',
             color: '#10b981', // emerald-500
           }
@@ -54,7 +54,7 @@ export function InvoiceChart({ chartData, totalRevenue }: InvoiceChartProps) {
               content={<ChartTooltipContent indicator="line" />}
             />
             <Line 
-              dataKey="amount" 
+              dataKey="total" 
               type="monotone" 
               stroke="#10b981" 
               strokeWidth={3}

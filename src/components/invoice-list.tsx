@@ -1,7 +1,6 @@
 'use client'
 import { api } from '@/trpc/react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
@@ -76,7 +75,7 @@ const InvoiceList = () => {
               </TableCell>
               <TableCell className="text-emerald-800">{invoice.toName}</TableCell>
               <TableCell className="text-emerald-800">
-                ${invoice.amount.toFixed(2)}
+                ${invoice.total.toFixed(2)}
               </TableCell>
               <TableCell>
                 <Badge
