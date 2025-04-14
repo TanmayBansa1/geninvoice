@@ -34,7 +34,7 @@ export function UserProfile() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="outline-none focus:ring-0 focus:outline-none">
+      <DropdownMenuTrigger className="outline-none focus:ring-0 focus:outline-none cursor-pointer">
         <div className="flex items-center justify-center rounded-full border-1 text-green-500">
           {user?.imageUrl ? (
             <Image
