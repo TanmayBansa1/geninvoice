@@ -25,7 +25,7 @@ export async function getAnalytics() {
     const [usd, inr, eur, paid, pending, totalInvoices, rawChartData] = await Promise.all([
         db.invoice.aggregate({
             _sum:{
-                amount: true,
+                total: true,
             },
             where:{
                 status: 'PAID',
@@ -38,7 +38,7 @@ export async function getAnalytics() {
         }),
         db.invoice.aggregate({
             _sum:{
-                amount: true,
+                total: true,
             },
             where:{
                 status: 'PAID',
@@ -51,7 +51,7 @@ export async function getAnalytics() {
         }),
         db.invoice.aggregate({
             _sum:{
-                amount: true,
+                total: true,
             },
             where:{
                 status: 'PAID',
@@ -101,7 +101,7 @@ export async function getAnalytics() {
             },
             select: {
                 date: true,
-                amount: true,
+                total: true,
                 currency: true
             }
         })
@@ -113,9 +113,9 @@ export async function getAnalytics() {
     const rates = data.rates
 
     // Calculate total revenue in USD
-    const usdAmount = usd._sum?.amount || 0
-    const inrAmount = (inr._sum?.amount || 0) / rates.INR
-    const eurAmount = (eur._sum?.amount || 0) / rates.EUR
+    const usdAmount = usd._sum?.total || 0
+    const inrAmount = (inr._sum?.total || 0) / rates.INR
+    const eurAmount = (eur._sum?.total || 0) / rates.EUR
     const totalRevenue = (usdAmount + inrAmount + eurAmount).toFixed(2)
     
     const chartData = rawChartData.reduce((acc: {
@@ -128,18 +128,18 @@ export async function getAnalytics() {
                 year: 'numeric'
             }
         )
-        const amountToAdd = curr.currency === 'USD' ? curr.amount : curr.amount / rates[curr.currency]
+        const amountToAdd = curr.currency === 'USD' ? curr.total : curr.total / rates[curr.currency]
         acc[date] = (acc[date] || 0) + amountToAdd
         return acc
     }, {})
     
-    const formattedChartData = Object.entries(chartData).map(([date, amount]) => ({
+    const formattedChartData = Object.entries(chartData).map(([date, total]) => ({
         date,
-        amount
+        total
     })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map(({date, amount}) => ({
+    .map(({date, total}) => ({
         date,
-        amount
+        total
     }))
     
     return {
@@ -150,7 +150,7 @@ export async function getAnalytics() {
         chartData: formattedChartData,
         recentInvoices: totalInvoices.slice(0, 10).map((invoice) => ({
             invoiceId: invoice.id,
-            amount: invoice.amount,
+            total: invoice.total,
             currency: invoice.currency,
             date: invoice.date,
             status: invoice.status,
