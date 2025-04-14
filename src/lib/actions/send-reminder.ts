@@ -30,7 +30,7 @@ export async function sendReminder(invoiceId: string) {
             "InvoiceNumber": invoice.invoiceName,
             "invoiceDate": formatDate(invoice.date),
             "dueDate": formatDate(new Date(invoice.date.getTime() + invoice.dueDate! * 24 * 60 * 60 * 1000)),
-            "amount": formatCurrency({amount: invoice.amount, currency: invoice.currency}).formatted,
+            "amount": formatCurrency({amount: invoice.total, currency: invoice.currency}).formatted,
             "fromName": invoice.fromName,
             "company_info_name": "GenInvoice",
             "company_info_address": "123, Delhi, India",
