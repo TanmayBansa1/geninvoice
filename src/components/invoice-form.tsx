@@ -102,8 +102,6 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log("Initial data:", initialData);
-
   const createInvoice = api.invoice.createInvoice.useMutation({
     onSuccess: (data) => {
       console.log("Mutation success:", data);
@@ -252,7 +250,6 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
           e.preventDefault();
           console.log("Form submit event triggered");
           const formData = form.getValues();
-          console.log("Form values:", formData);
           handleSubmit(formData);
         }} 
         className="space-y-8"
