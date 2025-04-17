@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import InvoiceActions from './invoice-actions'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { formatCurrency } from '@/lib/format'
 
 const container = {
   hidden: { opacity: 0 },
@@ -75,7 +76,7 @@ const InvoiceList = () => {
               </TableCell>
               <TableCell className="text-emerald-800">{invoice.toName}</TableCell>
               <TableCell className="text-emerald-800">
-                ${invoice.total.toFixed(2)}
+                {formatCurrency({amount: invoice.total, currency: invoice.currency}).formatted}
               </TableCell>
               <TableCell>
                 <Badge
