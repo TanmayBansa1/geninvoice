@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
+import { motion, useScroll, useTransform} from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, BarChart, Zap, Shield, Clock, Sparkles } from "lucide-react"
 import Link from "next/link"
