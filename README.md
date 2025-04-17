@@ -9,9 +9,9 @@ A modern, production-ready SaaS platform for seamless invoice management. GenInv
 - **Fast Invoice Generation:** Generate invoices in seconds
 - **Invoice Management:** Manage your business invoices effortlessly
 - **Analytics Dashboard:** Visualize your invoicing activity and business insights
-- **Email Support:** Send invoices via email to customers.
+- **Email Support:** Send invoices via email to customers with the invoice attached.
 - **Built-in Reminder:** Send reminders any time for your invoices.
-
+- **Generate PDFs from scratch:** Uses jsPDF to generate invoices pdfs from sratch 
 ---
 
 ## 🛠 Tech Stack
@@ -25,12 +25,6 @@ A modern, production-ready SaaS platform for seamless invoice management. GenInv
 - **UI/Animation:** [Framer Motion](https://www.framer.com/motion/)
 - **Rate Limiting:** [@upstash/redis](https://upstash.com/) & [@upstash/ratelimit](https://github.com/upstash/ratelimit)
 - **Deployment:** Vercel
-
----
-
-## 📄 License
-
-[MIT](LICENSE)
 
 ---
 
