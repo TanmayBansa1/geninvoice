@@ -1,29 +1,56 @@
-# Create T3 App
+# GenInvoice
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A modern, production-ready SaaS platform for seamless invoice management. GenInvoice empowers businesses and freelancers to create, manage, and send invoices effortlessly with a beautiful, responsive UI and robust backend.
 
-## What's next? How do I make an app with this?
+---
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## 🚀 Features
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Fast Invoice Generation:** Generate invoices in seconds
+- **Invoice Management:** Manage your business invoices effortlessly
+- **Analytics Dashboard:** Visualize your invoicing activity and business insights
+- **Email Support:** Send invoices via email to customers.
+- **Built-in Reminder:** Send reminders any time for your invoices.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+---
 
-## Learn More
+## 🛠 Tech Stack
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- **Framework:** [Next.js 15 (App Router)](https://nextjs.org)
+- **API:** [tRPC](https://trpc.io)
+- **Database:** [Prisma ORM](https://www.prisma.io)
+- **Auth:** [Clerk.dev](https://clerk.dev)
+- **Email:** [Mailtrap](https://mailtrap.io)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com)
+- **UI/Animation:** [Framer Motion](https://www.framer.com/motion/)
+- **Rate Limiting:** [@upstash/redis](https://upstash.com/) & [@upstash/ratelimit](https://github.com/upstash/ratelimit)
+- **Deployment:** Vercel
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+---
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## 📄 License
 
-## How do I deploy this?
+[MIT](LICENSE)
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+---
+
+## 👤 Author
+
+- [Tanmay Bansal](https://github.com/TanmayBansa1)
+
+---
+
+## ⭐️ Show your support
+
+If you like this project, please star the repo and share it!
+
+---
+
+## 📣 Contact & Social
+
+- [GitHub](https://github.com/TanmayBansa1/geninvoice)
+- [Twitter/X](https://x.com/K_A_I11)
+
+---
+
+> Made with ❤️ using Next.js, tRPC, Prisma, Clerk, TailwindCSS, and Upstash.
