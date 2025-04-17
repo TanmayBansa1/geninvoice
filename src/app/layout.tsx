@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { ClerkAuthProvider } from "@/components/providers/clerk-provider";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://geninvoice.tanmay.space"),
   title: "GenInvoice | Invoice Generation for Businesses & Freelancers",
   description:
     "Streamline your business invoicing with GenInvoice. Create, manage, and track invoices effortlessly. Fast, secure, and professional invoice generation for businesses and freelancers.",
@@ -27,11 +28,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "GenInvoice",
     description: "Streamline your business invoicing with GenInvoice.",
-    url: "https://geninvoice.tanmay.space", // Replace with your real deployed URL
+    url: "https://geninvoice.tanmay.space",
     siteName: "GenInvoice",
     images: [
       {
-        url: "/og-image.png", // Place a 1200x630px image in /public
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "GenInvoice - Invoice Platform",

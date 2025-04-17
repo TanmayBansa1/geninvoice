@@ -55,7 +55,6 @@ model Invoice {
 
   @@unique([sno, userId])
 }
-
 model InvoiceItem {
   id          String   @id @default(cuid())
   description String

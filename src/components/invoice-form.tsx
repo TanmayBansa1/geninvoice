@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -27,70 +26,12 @@ import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-type Currency = "USD" | "INR" | "EUR";
-type Status = "PAID" | "PENDING" | "DRAFT";
+import type { Currency, Status } from "@/lib/types";
+import type { InvoiceItem, InvoiceType as FormData } from "@/lib/types";
+import { formSchema } from "@/lib/types";
 
-interface InvoiceItem {
-  description: string;
-  quantity: number;
-  price: number;
-  amount: number;
-}
 
-interface FormData {
-  invoiceName: string;
-  sno: number;
-  status: Status;
-  currency: Currency;
-  dueDate: number;
-  date: Date;
-  fromName: string;
-  fromEmail: string;
-  fromAddress: string;
-  toName: string;
-  toEmail: string;
-  toAddress: string;
-  note?: string;
-  discount?: number;
-  tax?: number;
-  subtotal: number;
-  total: number;
-  items: InvoiceItem[];
-}
 
-const formSchema = z.object({
-  invoiceName: z.string().min(1, "Invoice name is required"),
-  sno: z.number().min(1, "Serial number must be positive"),
-  status: z.enum(["PAID", "PENDING", "DRAFT"]),
-  currency: z.enum(["USD", "INR", "EUR"]),
-  dueDate: z.number().min(1, "Due date must be positive"),
-  date: z.date(),
-  fromName: z.string().min(1, "From name is required"),
-  fromEmail: z.string().email("Invalid email address"),
-  fromAddress: z.string().min(1, "From address is required"),
-  toName: z.string().min(1, "To name is required"),
-  toEmail: z.string().email("Invalid email address"),
-  toAddress: z.string().min(1, "To address is required"),
-  note: z.string().optional(),
-  discount: z.number().min(0, "Discount must be positive").default(0),
-  tax: z.number().min(0, "Tax must be positive").default(0),
-  subtotal: z.number().min(0, "Subtotal must be positive"),
-  total: z.number().min(0, "Total must be positive"),
-  items: z.array(z.object({
-    description: z.string().min(1, "Description is required"),
-    quantity: z.number().min(1, "Quantity must be positive"),
-    price: z.number().min(0, "Price must be positive"),
-    amount: z.number().min(0, "Amount must be positive"),
-  })),
-}).refine((data) => {
-  if (data.status === "PAID") {
-    return true;
-  }
-  return data.dueDate !== undefined;
-}, {
-  message: "Due date is required for non-PAID invoices",
-  path: ["dueDate"],
-});
 
 interface InvoiceFormProps {
   initialData?: FormData & { id?: string };

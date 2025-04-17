@@ -6,21 +6,22 @@ import {
 import { mailtrap} from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TRPCError } from "@trpc/server";
+import { formSchema, type InvoiceItem, type InvoiceType } from "@/lib/types";
 
-function getTemplateVariables(input: any, invoice: any) {
+function getTemplateVariables(input: z.infer<typeof formSchema>, invoice: InvoiceType) {
   return {
     toName: input.toName,
     amount: formatCurrency({amount: input.total, currency: input.currency}).formatted,
     fromName: input.fromName,
     sno: input.sno,
     invoiceDate: formatDate(input.date),
-    payDate: formatDate(new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000)),
+    payDate: formatDate(new Date((input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000))),
     status: input.status,
     toAddress: input.toAddress,
     toEmail: input.toEmail,
     fromAddress: input.fromAddress,
     fromEmail: input.fromEmail,
-    items: input.items.map((item: any) => ({
+    items: input.items.map((item: InvoiceItem) => ({
       description: item.description,
       quantity: item.quantity,
       price: formatCurrency({amount: item.price, currency: input.currency}).formatted,
@@ -39,32 +40,7 @@ function getTemplateVariables(input: any, invoice: any) {
 
 export const invoiceRouter = createTRPCRouter({
   createInvoice: protectedProcedure
-    .input(z.object({
-      invoiceName: z.string(),
-      sno: z.number(),
-      status: z.enum(["PAID", "PENDING", "DRAFT"]),
-      currency: z.string(),
-      dueDate: z.number(),
-      date: z.date(),
-      fromName: z.string(),
-      fromEmail: z.string().email(),
-      fromAddress: z.string(),
-      toName: z.string(),
-      toEmail: z.string().email(),
-      toAddress: z.string(),
-      note: z.string().optional(),
-      discount: z.number().default(0),
-      tax: z.number().default(0),
-      subtotal: z.number().default(0),
-      total: z.number().default(0),
-      items: z.array(z.object({
-        description: z.string(),
-        quantity: z.number(),
-        price: z.number(),
-        amount: z.number()
-      })),
-      invoiceId: z.string().optional()
-    }))
+    .input(formSchema)
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
         where: {
