@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import type { SubmitHandler } from "react-hook-form";
+import React, { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -94,11 +93,10 @@ const formSchema = z.object({
 });
 
 interface InvoiceFormProps {
-  onSubmit?: SubmitHandler<FormData>;
   initialData?: FormData & { id?: string };
 }
 
-export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
+export function InvoiceForm({ initialData }: InvoiceFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -225,32 +223,36 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
     calculateTotals(newItems);
   };
 
-  const calculateTotals = (currentItems: typeof items) => {
-    const subtotal = currentItems.reduce((sum, item) => sum + item.amount, 0);
-    const discountPercentage = form.watch("discount") || 0;
-    const taxPercentage = form.watch("tax") || 0;
-    
-    const discountAmount = (subtotal * discountPercentage) / 100;
-    const taxAmount = ((subtotal - discountAmount) * taxPercentage) / 100;
-    const total = subtotal - discountAmount + taxAmount;
-
+  const calculateTotals = useCallback((items: InvoiceItem[]) => {
+    let subtotal = 0;
+    let discountAmount = 0;
+    let taxAmount = 0;
+    let total = 0;
+    const discountPercentage = form.getValues("discount") || 0;
+    const taxPercentage = form.getValues("tax") || 0;
+    items.forEach((item) => {
+      subtotal += item.amount || 0;
+    });
+    discountAmount = (subtotal * discountPercentage) / 100;
+    taxAmount = ((subtotal - discountAmount) * taxPercentage) / 100;
+    total = subtotal - discountAmount + taxAmount;
     form.setValue("subtotal", subtotal);
     form.setValue("total", total);
-  };
+  }, [form]);
 
   useEffect(() => {
     calculateTotals(items);
-  }, [items]);
+  }, [items, calculateTotals]);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-primary">Create New Invoice</h1>
       <form 
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           console.log("Form submit event triggered");
           const formData = form.getValues();
-          handleSubmit(formData);
+          await handleSubmit(formData);
         }} 
         className="space-y-8"
       >
@@ -268,10 +270,10 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
               <label className="text-sm font-medium">Serial Number</label>
               <Input type="number" {...form.register("sno", { valueAsNumber: true })} />
               {form.formState.errors.sno && <p className="text-sm text-red-500">{form.formState.errors.sno.message}</p>}
-            </div>
+          </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
-              <Select
+                  <Select 
                 value={form.watch("status")}
                 onValueChange={(value) => {
                   form.setValue("status", value as Status);
@@ -282,31 +284,31 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
                   }
                 }}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    <SelectContent>
                   <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="PAID">Paid</SelectItem>
-                </SelectContent>
-              </Select>
+                      <SelectItem value="PAID">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
               {form.formState.errors.status && <p className="text-sm text-red-500">{form.formState.errors.status.message}</p>}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Currency</label>
-              <Select
+                  <Select 
                 value={form.watch("currency")}
                 onValueChange={(value) => form.setValue("currency", value as Currency)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
+                  >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                    <SelectContent>
                   <SelectItem value="USD">USD</SelectItem>
                   <SelectItem value="EUR">EUR</SelectItem>
                   <SelectItem value="INR">INR</SelectItem>
-                </SelectContent>
-              </Select>
+                    </SelectContent>
+                  </Select>
               {form.formState.errors.currency && <p className="text-sm text-red-500">{form.formState.errors.currency.message}</p>}
             </div>
             {form.watch("status") !== "PAID" && (
@@ -318,26 +320,26 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
             )}
             <div className="space-y-2">
               <label className="text-sm font-medium">Date</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
+                  <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
                       "w-full justify-start text-left font-normal",
                       !form.watch("date") && "text-muted-foreground"
-                    )}
-                  >
+                          )}
+                        >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {form.watch("date") ? (
                       format(form.watch("date"), "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                    </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
+                      <Calendar
+                        mode="single"
                     selected={form.watch("date")}
                     onSelect={(date) => {
                       if (date) {
@@ -345,10 +347,10 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
                       }
                     }}
                     disabled={(date) => date > new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
               {form.formState.errors.date && <p className="text-sm text-red-500">{form.formState.errors.date.message}</p>}
             </div>
           </CardContent>
@@ -396,7 +398,7 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
               <label className="text-sm font-medium">Address</label>
               <Textarea {...form.register("toAddress")} />
               {form.formState.errors.toAddress && <p className="text-sm text-red-500">{form.formState.errors.toAddress.message}</p>}
-            </div>
+          </div>
           </CardContent>
         </Card>
 
@@ -415,31 +417,31 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
               >
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-medium">Description</label>
-                  <Input
+                    <Input 
                     value={item.description}
                     onChange={(e) => updateItem(index, "description", e.target.value)}
-                  />
-                </div>
+            />
+          </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Quantity</label>
-                  <Input
+                    <Input 
                     type="number"
                     value={item.quantity}
                     onChange={(e) => updateItem(index, "quantity", Number(e.target.value))}
-                  />
-                </div>
+            />
+          </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Price</label>
-                  <Input
-                    type="number"
+                    <Input 
+                      type="number" 
                     value={item.price}
                     onChange={(e) => updateItem(index, "price", Number(e.target.value))}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Amount</label>
-                  <Input
-                    type="number"
+                    <Input 
+                      type="number" 
                     value={item.amount}
                     readOnly
                   />
@@ -468,7 +470,7 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
           <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="discount">Discount (%)</Label>
-              <Input
+                    <Input 
                 id="discount"
                 type="number"
                 min="0"
@@ -478,11 +480,11 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
                   valueAsNumber: true,
                   onChange: () => calculateTotals(items),
                 })}
-              />
-            </div>
+            />
+          </div>
             <div className="space-y-2">
               <Label htmlFor="tax">Tax (%)</Label>
-              <Input
+                  <Input 
                 id="tax"
                 type="number"
                 min="0"
@@ -569,7 +571,7 @@ export function InvoiceForm({ onSubmit, initialData }: InvoiceFormProps) {
             )}
           </Button>
         </div>
-      </form>
+        </form>
     </div>
   );
 }
