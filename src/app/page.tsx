@@ -285,6 +285,71 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Footer */}
+      <motion.footer
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        viewport={{ once: true }}
+        className="w-full border-t border-gray-200 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 dark:from-emerald-800 dark:via-teal-900 dark:to-emerald-900 mt-0 shadow-inner"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+          viewport={{ once: true }}
+          className="container mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4 relative"
+        >
+          {/* Left: Logo and Text */}
+          <div className="flex items-center gap-2 text-white">
+            {/* Infinity symbol as SVG with gradient animation */}
+            <motion.svg
+              width="40" height="40" viewBox="0 0 32 32" fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+              className="drop-shadow-lg"
+            >
+              <defs>
+                <linearGradient id="infinityGradient" x1="4" y1="16" x2="28" y2="16" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#10B981" />
+                  <stop offset="1" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <path d="M9 21C6.23858 21 4 18.7614 4 16C4 13.2386 6.23858 11 9 11C13.5 11 18.5 21 23 21C25.7614 21 28 18.7614 28 16C28 13.2386 25.7614 11 23 11C18.5 11 13.5 21 9 21Z" stroke="url(#infinityGradient)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </motion.svg>
+            <span className="font-bold text-xl tracking-tight drop-shadow-md">GenInvoice</span>
+            <span className="text-sm text-emerald-100 ml-4 hidden sm:inline">&copy; {new Date().getFullYear()} All rights reserved.</span>
+          </div>
+          {/* Right: Social Icons */}
+          <div className="flex items-center gap-4">
+            <motion.a
+              href="https://github.com/TanmayBansa1/geninvoice"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              whileHover={{ scale: 1.15, rotate: -8 }}
+              whileTap={{ scale: 0.95 }}
+              className="transition-transform"
+            >
+              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white hover:text-emerald-300 transition-colors" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.185 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.621.069-.609.069-.609 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.338 1.908-1.296 2.747-1.025 2.747-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.744 0 .267.18.577.688.48C19.138 20.203 22 16.447 22 12.021 22 6.484 17.523 2 12 2Z"></path></svg>
+            </motion.a>
+            <motion.a
+              href="https://x.com/K_A_I11"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+              whileHover={{ scale: 1.15, rotate: 8 }}
+              whileTap={{ scale: 0.95 }}
+              className="transition-transform"
+            >
+              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white hover:text-emerald-300 transition-colors" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 22.43.36a9.1 9.1 0 0 1-2.88 1.1A4.48 4.48 0 0 0 16.11 0c-2.63 0-4.76 2.13-4.76 4.76 0 .37.04.73.12 1.07C7.69 5.67 4.07 3.94 1.64 1.16c-.41.7-.65 1.52-.65 2.4 0 1.65.84 3.1 2.13 3.95A4.48 4.48 0 0 1 .96 6v.06c0 2.3 1.64 4.22 3.83 4.66-.4.11-.82.17-1.26.17-.31 0-.61-.03-.9-.08.61 1.91 2.38 3.3 4.48 3.34A9.05 9.05 0 0 1 0 21.54 12.8 12.8 0 0 0 6.92 24c8.29 0 12.84-6.87 12.84-12.84 0-.2 0-.39-.01-.59A9.22 9.22 0 0 0 24 4.59a9.1 9.1 0 0 1-2.6.71A4.48 4.48 0 0 0 23 3Z"></path></svg>
+            </motion.a>
+          </div>
+        </motion.div>
+      </motion.footer>
     </div>
   )
 }
