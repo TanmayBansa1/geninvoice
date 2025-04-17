@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10B981" />
+      <stop offset="1" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="infinityGradient" x1="420" y1="315" x2="780" y2="315" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10B981" />
+      <stop offset="1" stop-color="#06b6d4" />
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1200" height="630" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" rx="40" fill="url(#bgGradient)"/>
+  <!-- Infinity Logo -->
+  <g filter="url(#shadow)">
+    <path d="M485 370C448 370 420 342 420 315C420 288 448 260 485 260C555 260 645 370 715 370C752 370 780 342 780 315C780 288 752 260 715 260C645 260 555 370 485 370Z" stroke="url(#infinityGradient)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  <!-- Brand Title -->
+  <text x="600" y="230" text-anchor="middle" font-size="84" font-family="'Segoe UI', Arial, sans-serif" font-weight="bold" fill="#fff" letter-spacing="2">GenInvoice</text>
+  <!-- Tagline -->
+  <text x="600" y="410" text-anchor="middle" font-size="40" font-family="'Segoe UI', Arial, sans-serif" fill="#e0fdfa">Effortless Invoice Generation</text>
+  <text x="600" y="470" text-anchor="middle" font-size="32" font-family="'Segoe UI', Arial, sans-serif" fill="#a7f3d0">For Businesses & Freelancers</text>
+  <!-- Footer -->
+  <text x="600" y="590" text-anchor="middle" font-size="24" font-family="'Segoe UI', Arial, sans-serif" fill="#cffafe">geninvoice.tanmay.space</text>
+</svg>
