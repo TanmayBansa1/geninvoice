@@ -28,10 +28,11 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                   {
                     onSuccess: () => {
                       toast.success("Invoice deleted successfully");
-                      utils.invoice.getInvoices.invalidate();
+                      void utils.invoice.getInvoices.invalidate();
                     },
                     onError: (error) => {
                       toast.error("Failed to delete invoice");
+                      console.log(error, "Failed to delete invoice");
                     }
                   })}>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left'>
@@ -58,10 +59,11 @@ const InvoiceActions = ({isPaid, invoiceId}: {isPaid: boolean, invoiceId: string
                   {
                     onSuccess: () => {
                       toast.success("Invoice marked as paid");
-                      utils.invoice.getInvoices.invalidate();
+                      void utils.invoice.getInvoices.invalidate();
                     },
                     onError: (error) => {
                       toast.error("Failed to mark invoice as paid");
+                      console.log(error, "Failed to mark invoice as paid");
                     }
                   })}>
                     <Button variant={'ghost'} className='p-3 w-full flex items-center justify-start text-left'>
