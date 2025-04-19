@@ -1,21 +1,24 @@
 import { z } from "zod";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-} from "@/server/api/trpc";
-import { mailtrap} from "@/lib/mailtrap";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { mailtrap } from "@/lib/mailtrap";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { TRPCError } from "@trpc/server";
 import { formSchema, type InvoiceItem, type InvoiceType } from "@/lib/types";
 
-function getTemplateVariables(input: z.infer<typeof formSchema>, invoice: InvoiceType) {
+function getTemplateVariables(
+  input: z.infer<typeof formSchema>,
+  invoice: InvoiceType,
+) {
   return {
     toName: input.toName,
-    amount: formatCurrency({amount: input.total, currency: input.currency}).formatted,
+    amount: formatCurrency({ amount: input.total, currency: input.currency })
+      .formatted,
     fromName: input.fromName,
     sno: input.sno,
     invoiceDate: formatDate(input.date),
-    payDate: formatDate(new Date((input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000))),
+    payDate: formatDate(
+      new Date(input.date.getTime() + input.dueDate * 24 * 60 * 60 * 1000),
+    ),
     status: input.status,
     toAddress: input.toAddress,
     toEmail: input.toEmail,
@@ -24,17 +27,34 @@ function getTemplateVariables(input: z.infer<typeof formSchema>, invoice: Invoic
     items: input.items.map((item: InvoiceItem) => ({
       description: item.description,
       quantity: item.quantity,
-      price: formatCurrency({amount: item.price, currency: input.currency}).formatted,
-      amount: formatCurrency({amount: item.amount, currency: input.currency}).formatted
+      price: formatCurrency({ amount: item.price, currency: input.currency })
+        .formatted,
+      amount: formatCurrency({ amount: item.amount, currency: input.currency })
+        .formatted,
     })),
-    subtotal: formatCurrency({amount: input.subtotal, currency: input.currency}).formatted,
+    subtotal: formatCurrency({
+      amount: input.subtotal,
+      currency: input.currency,
+    }).formatted,
     discount: input.discount,
-    discountAmount: formatCurrency({amount: (input.subtotal * input.discount) / 100, currency: input.currency}).formatted || "0",
+    discountAmount:
+      formatCurrency({
+        amount: (input.subtotal * input.discount) / 100,
+        currency: input.currency,
+      }).formatted || "0",
     tax: input.tax,
-    taxAmount: formatCurrency({amount: ((input.subtotal - (input.subtotal * (input.discount ?? 0) / 100)) * input.tax) / 100, currency: input.currency}).formatted || "0",
-    total: formatCurrency({amount: input.total, currency: input.currency}).formatted,
+    taxAmount:
+      formatCurrency({
+        amount:
+          ((input.subtotal - (input.subtotal * (input.discount ?? 0)) / 100) *
+            input.tax) /
+          100,
+        currency: input.currency,
+      }).formatted || "0",
+    total: formatCurrency({ amount: input.total, currency: input.currency })
+      .formatted,
     note: input.note || "",
-    invoiceLink: `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`
+    invoiceLink: `${process.env.NEXT_PUBLIC_HOME_URL}/api/invoice/${invoice.id}`,
   };
 }
 
@@ -55,7 +75,7 @@ export const invoiceRouter = createTRPCRouter({
         });
       }
 
-      if(input.invoiceId){
+      if (input.invoiceId) {
         // Update existing invoice
         const invoice = await ctx.db.invoice.update({
           where: {
@@ -81,17 +101,17 @@ export const invoiceRouter = createTRPCRouter({
             total: input.total,
             items: {
               deleteMany: {}, // Delete all existing items
-              create: input.items.map(item => ({
+              create: input.items.map((item) => ({
                 description: item.description,
                 quantity: item.quantity,
                 price: item.price,
-                amount: item.amount
-              }))
-            }
+                amount: item.amount,
+              })),
+            },
           },
           include: {
-            items: true
-          }
+            items: true,
+          },
         });
 
         const sender = {
@@ -99,13 +119,15 @@ export const invoiceRouter = createTRPCRouter({
           name: invoice.fromName,
         };
 
-        await mailtrap.send({
-          from: sender,
-          to: [{email: input.toEmail, name: input.toName}],
-          template_uuid: process.env.EDIT_INVOICE_TEMPLATE!,
-          template_variables: getTemplateVariables(input, invoice)
-        }).then(console.log, console.error);
-        
+        await mailtrap
+          .send({
+            from: sender,
+            to: [{ email: input.toEmail, name: input.toName }],
+            template_uuid: process.env.EDIT_INVOICE_TEMPLATE!,
+            template_variables: getTemplateVariables(input, invoice),
+          })
+          .then(console.log, console.error);
+
         return invoice;
       }
 
@@ -131,36 +153,38 @@ export const invoiceRouter = createTRPCRouter({
           total: input.total,
           userId: user.id,
           items: {
-            create: input.items.map(item => ({
+            create: input.items.map((item) => ({
               description: item.description,
               quantity: item.quantity,
               price: item.price,
-              amount: item.amount
-            }))
-          }
+              amount: item.amount,
+            })),
+          },
         },
         include: {
-          items: true
-        }
+          items: true,
+        },
       });
 
       const sender = {
         email: "hello@geninvoices.tanmay.space",
         name: invoice.fromName,
       };
-      
-      await mailtrap.send({
-        from: sender,
-        to: [{email: input.toEmail, name: input.toName}],
-        template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
-        template_variables: getTemplateVariables(input, invoice)
-      }).then(console.log, console.error);
-      
+
+      await mailtrap
+        .send({
+          from: sender,
+          to: [{ email: input.toEmail, name: input.toName }],
+          template_uuid: process.env.SEND_INVOICE_TEMPLATE!,
+          template_variables: getTemplateVariables(input, invoice),
+        })
+        .then(console.log, console.error);
+
       return invoice;
     }),
 
   getInvoicebyId: protectedProcedure
-    .input(z.object({invoiceId: z.string()}))
+    .input(z.object({ invoiceId: z.string() }))
     .query(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
         where: {
@@ -205,12 +229,12 @@ export const invoiceRouter = createTRPCRouter({
               description: true,
               quantity: true,
               price: true,
-              amount: true
-            }
-          }
-        }
+              amount: true,
+            },
+          },
+        },
       });
-      
+
       if (!invoice) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -246,63 +270,69 @@ export const invoiceRouter = createTRPCRouter({
         total: true,
         status: true,
         date: true,
-        currency: true
+        currency: true,
       },
       orderBy: {
-        createdAt: "desc"
-      }
+        createdAt: "desc",
+      },
     });
-    
+
     return invoices;
   }),
 
-  deleteInvoice: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
-    const user = await ctx.db.user.findUnique({
-      where: {
-        clerkId: ctx.userId,
-      },
-    });
-
-    if (!user) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "User not found",
+  deleteInvoice: protectedProcedure
+    .input(z.object({ invoiceId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: {
+          clerkId: ctx.userId,
+        },
       });
-    }
 
-    await ctx.db.invoice.delete({
-      where: {
-        id: input.invoiceId,
-        userId: user.id,
-      },
-    });
-
-  }),
-
-  markAsPaid: protectedProcedure.input(z.object({invoiceId: z.string()})).mutation(async ({ctx, input}) => {
-    const user = await ctx.db.user.findUnique({
-      where: {
-        clerkId: ctx.userId,
-      },
-    });
-
-    if (!user) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "User not found",
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+      await ctx.db.invoiceItem.deleteMany({
+        where: {
+          invoiceId: input.invoiceId,
+        },
       });
-    }
 
-    await ctx.db.invoice.update({
-      where: {
-        id: input.invoiceId,
-        userId: user.id,
-      },
-      data: {
-        status: "PAID",
-      },
-    });
-    
-  }),
+      await ctx.db.invoice.delete({
+        where: {
+          id: input.invoiceId,
+          userId: user.id,
+        },
+      });
+    }),
+
+  markAsPaid: protectedProcedure
+    .input(z.object({ invoiceId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: {
+          clerkId: ctx.userId,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      await ctx.db.invoice.update({
+        where: {
+          id: input.invoiceId,
+          userId: user.id,
+        },
+        data: {
+          status: "PAID",
+        },
+      });
+    }),
 });
-
