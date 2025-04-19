@@ -6,7 +6,7 @@ import { Geist } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "sonner";
 import { ClerkAuthProvider } from "@/components/providers/clerk-provider";
-
+import { Analytics } from "@vercel/analytics/react"
 export const metadata: Metadata = {
   metadataBase: new URL("https://geninvoice.tanmay.space"),
   title: "GenInvoice | Invoice Generation for Businesses & Freelancers",
@@ -67,6 +67,8 @@ export default function RootLayout({
             <Toaster richColors  />
           </TRPCReactProvider>
         </ClerkAuthProvider>
+        <Analytics />
+
       </body>
     </html>
   );
