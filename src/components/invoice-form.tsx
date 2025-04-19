@@ -40,11 +40,13 @@ interface InvoiceFormProps {
 export function InvoiceForm({ initialData }: InvoiceFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const utils = api.useUtils();
 
   const createInvoice = api.invoice.createInvoice.useMutation({
     onSuccess: (data) => {
       console.log("Mutation success:", data);
       toast.success("Invoice created successfully");
+      void utils.invoice.getInvoices.invalidate();
       router.push("/invoices");
     },
     onError: (error) => {
