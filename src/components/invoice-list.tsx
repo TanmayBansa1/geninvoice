@@ -8,6 +8,7 @@ import InvoiceActions from './invoice-actions'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/format'
+import { NoInvoices } from "./no-invoices";
 
 const container = {
   hidden: { opacity: 0 },
@@ -38,6 +39,10 @@ const InvoiceList = () => {
         </motion.div>
       </div>
     );
+  }
+
+  if (!invoices || invoices.length === 0) {
+    return <NoInvoices />;
   }
 
   return (

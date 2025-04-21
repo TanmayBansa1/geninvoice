@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { formatCurrency, formatDate } from '@/lib/format';
+import { NoInvoices } from "./no-invoices";
 
 interface RecentInvoicesProps {
   recentInvoices: {
@@ -17,6 +18,10 @@ interface RecentInvoicesProps {
 }
 
 const RecentInvoices = ({ recentInvoices }: RecentInvoicesProps) => {
+  if (!recentInvoices || recentInvoices.length === 0) {
+    return <NoInvoices />;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
