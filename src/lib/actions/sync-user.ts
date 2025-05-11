@@ -25,12 +25,18 @@ export async function syncUser() {
     imageUrl: user.imageUrl,
   };
 
-  const dbUser = await db.user.upsert({
+  const existingUser = await db.user.findUnique({
     where: {
       clerkId: user.id,
     },
-    update: userData,
-    create: {
+  });
+  if(existingUser){
+    console.log("User already exists in the database");
+    return existingUser;
+  }
+  
+  const dbUser = await db.user.create({
+    data: {
       clerkId: user.id,
       ...userData,
     },
