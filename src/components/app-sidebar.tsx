@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils"
 import { usePathname, useRouter } from "next/navigation"
 import { api } from "@/trpc/react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // This is sample data.
 const data = {
@@ -56,6 +56,16 @@ export function AppSidebar() {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = useState(false)
   const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({})
+  const [shouldFetchUser, setShouldFetchUser] = useState(false)
+
+  // Delay the user fetch to allow sync to complete
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldFetchUser(true)
+    }, 6000) // Wait 6 seconds for sync to complete
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const toggleGroup = (title: string) => {
     setExpandedGroups(prev => ({
@@ -69,7 +79,12 @@ export function AppSidebar() {
     router.push("/onboard")
   }
 
-  const { data: user, isLoading } = api.user.me.useQuery();
+  const { data: user, isLoading, error } = api.user.me.useQuery(undefined, {
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 30000, // 30 seconds
+    enabled: shouldFetchUser, // Only run the query when shouldFetchUser is true
+  });
 
   return (
     <Sidebar className="[&>div]:bg-transparent [&>div]:border-transparent [&>div]:shadow-none">

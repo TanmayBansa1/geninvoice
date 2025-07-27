@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, BarChart, Zap, Shield, Clock, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useRef, useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
+import { useRouter } from "next/navigation"
 
 interface TypewriterProps {
   words: string[]
@@ -79,9 +81,32 @@ export default function Home() {
     target: containerRef,
     offset: ["start start", "end start"]
   })
+  const { user, isLoaded } = useUser()
+  const router = useRouter()
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isLoaded && user) {
+      router.push("/dashboard")
+    }
+  }, [isLoaded, user, router])
+
+  // Show loading while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-green-400 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+      </div>
+    )
+  }
+
+  // Don't render the landing page if user is authenticated
+  if (user) {
+    return null
+  }
 
   return (
     <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-emerald-50 to-green-400 overflow-hidden relative">
