@@ -32,14 +32,14 @@ export function DashboardBlock({ data, title, description, isDollar, icon = 'dol
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow h-[180px] flex flex-col"
+      className="bg-white rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-shadow h-[140px] sm:h-[160px] md:h-[180px] flex flex-col"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-emerald-600">{title}</h3>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="text-xs sm:text-sm font-medium text-emerald-600">{title}</h3>
         <motion.div
           whileHover={{ rotate: 360 }}
           transition={{ duration: 0.5 }}
-          className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center"
+          className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0"
         >
           {getIcon()}
         </motion.div>
@@ -49,9 +49,9 @@ export function DashboardBlock({ data, title, description, isDollar, icon = 'dol
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex-grow"
+        className="flex-grow flex items-center"
       >
-        <p className="text-3xl font-bold text-emerald-900 mb-2">
+        <p className="text-xl sm:text-2xl md:text-3xl font-bold text-emerald-900">
           {isDollar ? `$${data.toLocaleString()}` : data.toLocaleString()}
         </p>
       </motion.div>
@@ -60,7 +60,7 @@ export function DashboardBlock({ data, title, description, isDollar, icon = 'dol
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-sm text-emerald-600"
+        className="text-xs sm:text-sm text-emerald-600 line-clamp-2"
       >
         {description}
       </motion.p>
